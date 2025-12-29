@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Management - Medical Service Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html"><img src="logo.png" alt="Hospital Icon" class="me-2" style="width: 2em; height: 1em;">
+Mediplus Health Care</a>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                <a class="nav-link" href="agents.html"><i class="bi bi-person-badge me-2"></i>Agents</a>
+                <a class="nav-link" href="doctors.html"><i class="bi bi-heart-pulse me-2"></i>Doctors</a>
+                <a class="nav-link" href="patients.html"><i class="bi bi-people me-2"></i>Patients</a>
+                <a class="nav-link" href="account.html"><i class="bi bi-file-medical me-2"></i>Services Account</a>
+                <a class="nav-link active" href="invoices.html"><i class="bi bi-receipt me-2"></i>Invoices</a>
+                <a class="nav-link" href="billing.html"><i class="bi bi-calculator me-2"></i>Billing</a>
+                <a class="nav-link" href="patientDues.html"><i class="bi bi-exclamation-circle me-2"></i>Patient Dues</a>
+                <a class="nav-link" href="report.html"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
+                <a class="nav-link" href="doctorRevisit.html"><i class="bi bi-calendar-check me-2"></i>Doctor Revisit</a>
+            </nav>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-10 p-4">
+           
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-receipt me-2"></i>Saved Invoices</h2>
+                
+            </div>
+             
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Patient Name</th>
+                                    <th>Doctor Name</th>
+                                    <th>Agent Name</th>
+                                    <th>Visit Date</th>
+                                    <th>Total (₹)</th>
+                                    <th>Discount (%)</th>
+                                    <th>Payment (₹)</th>
+                                    <th>Due (₹)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoiceTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Dues -->
+<div class="modal fade" id="duesModal" tabindex="-1" aria-labelledby="duesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Patients with Dues</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered" id="duesTable">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Patient Name</th>
+                            <th>Agent ID</th>
+                            <th>Agent Name</th>
+                            <th>Due (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-end">Total Dues:</th>
+                            <th id="totalDues">₹0.00</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 🔴 DOCTOR REVISIT MODAL -->
+<div class="modal fade" id="doctorRevisitModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+            <i class="bi bi-bell me-2"></i>Doctor Revisit Alert
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-bordered table-hover">
+            <thead class="table-warning">
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Contact Number</th>
+                    <th>Last Visit Date</th>
+                    <th>Date of Revisit</th>
+                    <th>Doctor Name</th>
+                    <th>Action</th> <!-- Added Action column -->
+                </tr>
+            </thead>
+            <tbody id="doctorRevisitTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Load invoices from localStorage
+function loadInvoices() {
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+    const tbody = document.getElementById('invoiceTableBody');
+
+    if (invoices.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No invoices found.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = invoices.map((inv, index) => `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${inv.patientName || 'N/A'}</td>
+            <td>${inv.doctorName || 'N/A'}</td>
+            <td>${inv.agentName || 'N/A'}</td>
+            <td>${inv.visitDate || 'N/A'}</td>
+            <td>₹${parseFloat(inv.total).toFixed(2)}</td>
+            <td>${parseFloat(inv.discount).toFixed(2)}</td>
+            <td>₹${parseFloat(inv.payment).toFixed(2)}</td>
+            <td>₹${parseFloat(inv.due).toFixed(2)}</td>
+            <td>
+                <button class="btn btn-info btn-sm" onclick="viewInvoice(${index})">
+                    <i class="bi bi-printer me-1"></i> Print
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+    updateDuesBadge();
+}
+
+// Print invoice details
+function viewInvoice(index) {
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+    const inv = invoices[index];
+    if (!inv) return;
+
+    const priceMap = { "Blood Test":50, "X-Ray":100, "MRI":500, "Urine Test":30, "ECG":70 };
+    let testsRows = '';
+    (inv.tests || '').split(',').map(t=>t.trim()).forEach(testName=>{
+        const price = priceMap[testName] || 0;
+        testsRows += `<tr><td>${testName}</td><td style="text-align:right;">₹${price.toFixed(2)}</td></tr>`;
+    });
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html><head><title>Invoice</title>
+        <style>
+            body{font-family:Arial,sans-serif;padding:20px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #000;padding:5px;text-align:left;} th{background:#f2f2f2;} .header{text-align:center;} .signature{text-align:right;margin-top:40px;font-size:14px;} hr{border:1px solid #000;margin:5px 0;}
+        </style>
+        </head>
+        <body onload="window.print();">
+            <div class="header">
+                <img src="logo.png" alt="Clinic Logo" style="height:70px;">
+                <h2 style="margin:0;font-size:18px;font-weight:bold;">Mediplus Health Care</h2>
+                <h5 style="margin:0;font-size:12px;">24/A Sriram Siromoni Road (Satimar Goli), Berhampore</h5>
+                <h6 style="margin:0;font-size:11px;">Phone: 9800958006 / 9800758005 | Email: mediplus.health@gmail.com</h6>
+            </div>
+            <hr>
+            <div style="display:flex; flex-wrap:wrap; margin-bottom:10px;">
+                <div style="width:50%;"><strong>Patient Name:</strong> ${inv.patientName}</div>
+                <div style="width:50%;"><strong>Doctor Name:</strong> ${inv.doctorName}</div>
+                <div style="width:50%;"><strong>Agent Name:</strong> ${inv.agentName}</div>
+                <div style="width:50%;"><strong>Visit Date:</strong> ${inv.visitDate}</div>
+            </div>
+            <h4>Tests</h4>
+            <table border="1">
+                <thead><tr><th>Test Name</th><th style="text-align:right;">Price (₹)</th></tr></thead>
+                <tbody>${testsRows}</tbody>
+            </table>
+            <h4>Payment Details</h4>
+            <p><strong>Total:</strong> ₹${parseFloat(inv.total).toFixed(2)}</p>
+            <p><strong>Discount:</strong> ₹${(parseFloat(inv.total)*parseFloat(inv.discount)/100).toFixed(2)}</p>
+            <p><strong>Payment Made:</strong> ₹${parseFloat(inv.payment).toFixed(2)}</p>
+            <p><strong>Due Amount:</strong> ₹${parseFloat(inv.due).toFixed(2)}</p>
+            <div class="signature"><strong>Accountant Signature:</strong> ____________________________</div>
+            <hr><p style="text-align:center;">Thank you for choosing our service.</p>
+        </body></html>
+    `);
+    printWindow.document.close();
+}
+
+// Update Dues Badge
+function updateDuesBadge() {
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+    const totalDues = invoices.reduce((acc, inv)=>acc + parseFloat(inv.due || 0),0);
+    document.getElementById('duesBadge').innerText = totalDues.toFixed(2);
+}
+
+// Populate Dues Modal
+const duesModal = document.getElementById('duesModal');
+duesModal.addEventListener('show.bs.modal', function() {
+    const tbody = document.querySelector('#duesTable tbody');
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]').filter(inv => parseFloat(inv.due) > 0);
+    tbody.innerHTML = invoices.map(inv=>`
+        <tr>
+            <td>${inv.patientId || ''}</td>
+            <td>${inv.patientName}</td>
+            <td>${inv.agentId || ''}</td>
+            <td>${inv.agentName}</td>
+            <td>₹${parseFloat(inv.due).toFixed(2)}</td>
+        </tr>
+    `).join('');
+    const totalDues = invoices.reduce((sum, inv)=>sum + parseFloat(inv.due),0);
+    document.getElementById('totalDues').innerText = `₹${totalDues.toFixed(2)}`;
+});
+
+
+/* -------- INVOICE PAGE DUES MODAL (ADD ONLY) -------- */
+function showDoctorDuesSame() {
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+    const tbody = document.getElementById("doctorDuesSameTableBody");
+    const totalCell = document.getElementById("doctorDuesSameTotal");
+
+    tbody.innerHTML = "";
+    let totalDues = 0;
+
+    // Price map for test calculation
+    const priceMap = { "Blood Test":50, "X-Ray":100, "MRI":500, "Urine Test":30, "ECG":70 };
+
+    const dueInvoices = invoices.filter(inv => Number(inv.due || 0) > 0);
+
+    if (!dueInvoices.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center text-success">
+                    🎉 No dues found
+                </td>
+            </tr>`;
+        totalCell.innerText = "₹0.00";
+    } else {
+        dueInvoices.forEach(inv => {
+            const dueAmount = Number(inv.due || 0);
+            const paymentMade = Number(inv.payment || 0);
+            const totalAmount = Number(inv.total || 0);
+
+            // Calculate test amount
+            let testAmount = 0;
+            (inv.tests || '').split(',').map(t => t.trim()).forEach(testName => {
+                testAmount += priceMap[testName] || 0;
+            });
+
+            totalDues += dueAmount;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${inv.patientId || '-'}</td>
+                    <td>${inv.patientName || '-'}</td>
+                    <td>${inv.agentId || '-'}</td>
+                    <td>${inv.agentName || '-'}</td>
+                    
+                    <td>₹${totalAmount.toFixed(2)}</td>
+                   <td>₹${paymentMade.toFixed(2)}</td>
+                    <td class="fw-bold text-danger">₹${dueAmount.toFixed(2)}</td>
+                </tr>`;
+        });
+
+        totalCell.innerText = `₹${totalDues.toFixed(2)}`;
+    }
+
+    new bootstrap.Modal(document.getElementById("doctorDuesSameModal")).show();
+}
+
+function showDoctorRevisitAlert() {
+    const tbody = document.getElementById("doctorRevisitTableBody");
+    tbody.innerHTML = "";
+
+    // 5 static data entries
+    const data = [
+        {name: "John Doe", contact: "+911234567890", lastVisit: "2025-12-01", revisit: "2025-12-20", doctor: "Dr. Smith"},
+        {name: "Jane Roe", contact: "+911234567891", lastVisit: "2025-12-03", revisit: "2025-12-22", doctor: "Dr. Patel"},
+        {name: "Alice Johnson", contact: "+911234567892", lastVisit: "2025-12-05", revisit: "2025-12-25", doctor: "Dr. Kumar"},
+        {name: "Bob Lee", contact: "+911234567893", lastVisit: "2025-12-07", revisit: "2025-12-28", doctor: "Dr. Sharma"},
+        {name: "Charlie Brown", contact: "+911234567894", lastVisit: "2025-12-10", revisit: "2025-12-30", doctor: "Dr. Reddy"},
+    ];
+
+    data.forEach(d => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${d.name}</td>
+                <td>${d.contact}</td>
+                <td>${d.lastVisit}</td>
+                <td>${d.revisit}</td>
+                <td>${d.doctor}</td>
+                <td class="text-center">
+                    <a href="https://wa.me/${d.contact.replace('+','')}" target="_blank" class="me-2 text-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    <a href="mailto:${d.name.replace(' ','.')}@gmail.com" class="me-2 text-danger" title="Gmail"><i class="bi bi-envelope"></i></a>
+                    <a href="sms:${d.contact}" class="me-2 text-primary" title="Message"><i class="bi bi-chat-dots"></i></a>
+                    <a href="tel:${d.contact}" class="text-dark" title="Call"><i class="bi bi-telephone"></i></a>
+                </td>
+            </tr>
+        `;
+    });
+
+    new bootstrap.Modal(document.getElementById("doctorRevisitModal")).show();
+}
+
+// Initialize
+loadInvoices();
+</script>
+<!-- 🔴 DOCTOR / PATIENT DUES MODAL (ADD ONLY) -->
+<div class="modal fade" id="doctorDuesSameModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+            <i class="bi bi-exclamation-triangle me-2"></i>Patient Dues
+        </h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+         <table class="table table-bordered table-hover">
+    <thead class="table-danger">
+        <tr>
+            <th>Patient ID</th>
+            <th>Patient Name</th>
+            <th>Agent ID</th>
+            <th>Agent Name</th>
+            <th>Total (₹)</th>
+            <th>Payment (₹)</th>
+            <th>Due (₹)</th>
+        </tr>
+    </thead>
+
+    <tbody id="doctorDuesSameTableBody"></tbody>
+
+    <tfoot class="table-danger">
+        <tr>
+            <th colspan="6" class="text-end">Total Dues:</th>
+            <th id="doctorDuesSameTotal" class="fw-bold text-danger">₹0.00</th>
+        </tr>
+    </tfoot>
+</table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

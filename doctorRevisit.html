@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Management - Medical Service Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+            <img src="logo.png" alt="Hospital Icon" class="me-2" style="width: 2em; height: 1em;">
+            Mediplus Health Care
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <span class="navbar-text text-white">
+                        <i class="bi bi-person-circle me-2"></i>Admin
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+<div class="row">
+
+<!-- Sidebar -->
+<div class="col-md-2 sidebar">
+    <nav class="nav flex-column">
+        <a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+        <a class="nav-link" href="agents.html"><i class="bi bi-person-badge me-2"></i>Agents</a>
+        <a class="nav-link" href="doctors.html"><i class="bi bi-heart-pulse me-2"></i>Doctors</a>
+        <a class="nav-link" href="patients.html"><i class="bi bi-people me-2"></i>Patients</a>
+        <a class="nav-link" href="account.html"><i class="bi bi-file-medical me-2"></i>Services Account</a>
+        <a class="nav-link" href="invoices.html"><i class="bi bi-receipt me-2"></i>Invoices</a>
+        <a class="nav-link" href="billing.html"><i class="bi bi-calculator me-2"></i>Billing</a>
+        <a class="nav-link" href="patientDues.html"><i class="bi bi-exclamation-circle me-2"></i>Patient Dues</a>
+        <a class="nav-link" href="report.html"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
+        <a class="nav-link active" href="doctorRevisit.html"><i class="bi bi-calendar-check me-2"></i>Doctor Revisit</a>
+    </nav>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="col-md-10 content-area">
+
+<h4 class="mb-3">Doctor Revisit Schedule</h4>
+
+<!-- SEARCH & FILTER -->
+<div class="row mb-3">
+    <div class="col-md-4 mb-2">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search patient / agent">
+    </div>
+   
+</div>
+
+<!-- TABLE -->
+<div class="table-responsive">
+<table class="table table-bordered table-striped align-middle revisit-table">
+<thead class="table-light">
+<tr>
+    <th>Patient ID</th>
+    <th>Patient Name</th>
+    <th>Agent ID</th>
+    <th>Agent Name</th>
+    <th>Contact</th>
+    <th>Email</th>
+    <th>WhatsApp</th>
+    <th>Last Visit</th>
+    <th>Next Revisit</th>
+    <th>Message History</th>
+    <th>View Message</th>
+    <th>Resend</th>
+</tr>
+</thead>
+<tbody id="patientTableBody"></tbody>
+</table>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- VIEW MESSAGE MODAL -->
+<div class="modal fade" id="messageModal" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title">Reminder Message</h5>
+    <button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+    <p id="messageText"></p>
+</div>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const patientBody = document.getElementById("patientTableBody");
+
+const patients = [
+    {id:"P1001", name:"Rahul Sharma", agentId:"A01", agentName:"Ankit Verma", contact:"9876543210", email:"rahul@mail.com", lastVisit:"22-12-2025", nextRevisit:"2025-02-05"},
+    {id:"P1002", name:"Neha Singh", agentId:"A02", agentName:"Pooja Mehta", contact:"9123456789", email:"neha@mail.com", lastVisit:"22-12-2025", nextRevisit:"2025-02-12"},
+    {id:"P1003", name:"Amit Kumar", agentId:"A01", agentName:"Ankit Verma", contact:"9988776655", email:"amit@mail.com", lastVisit:"22-12-2025", nextRevisit:"2025-02-10"},
+    {id:"P1004", name:"Riya Patel", agentId:"A02", agentName:"Pooja Mehta", contact:"9876512345", email:"riya@mail.com", lastVisit:"2025-01-12", nextRevisit:"2025-02-14"},
+    {id:"P1005", name:"Test Invalid", agentId:"A01", agentName:"Ankit Verma", contact:"12345", email:"invalid@mail.com", lastVisit:"22-12-2025", nextRevisit:"2025-02-15"}
+];
+
+patients.forEach(p => {
+    const row = document.createElement("tr");
+    row.dataset.nextRevisit = p.nextRevisit;
+    row.innerHTML = `
+        <td>${p.id}</td>
+        <td>${p.name}</td>
+        <td>${p.agentId}</td>
+        <td>${p.agentName}</td>
+        <td>${p.contact}</td>
+        <td>${p.email}</td>
+        <td>${p.contact}</td>
+        <td>${p.lastVisit}</td>
+        <td>${p.nextRevisit}</td>
+        <td class="message-history"></td>
+        <td class="text-center"><button class="btn btn-outline-dark btn-sm view-msg"><i class="bi bi-eye"></i></button></td>
+        <td class="text-center"><button class="resend-msg btn btn-sm" disabled><i class="bi bi-arrow-clockwise"></i> Resend</button></td>
+    `;
+    patientBody.appendChild(row);
+});
+
+let rows = document.querySelectorAll(".revisit-table tbody tr");
+const searchInput = document.getElementById("searchInput");
+const agentFilter = document.getElementById("agentFilter");
+const dateFilter = document.getElementById("dateFilter");
+const modal = new bootstrap.Modal(document.getElementById("messageModal"));
+const messageText = document.getElementById("messageText");
+
+/* LOCAL DATE FORMAT (NO UTC SHIFT) */
+function formatDateLocal(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+/* MESSAGE SENT = 2 DAYS BEFORE NEXT REVISIT */
+function updateMessageHistory() {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    rows.forEach(row => {
+        const nextDate = new Date(row.dataset.nextRevisit);
+        nextDate.setHours(0,0,0,0);
+
+        const messageDate = new Date(nextDate);
+        messageDate.setDate(messageDate.getDate() - 2);
+
+        if (today >= messageDate && !row.dataset.updated) {
+            const historyCell = row.querySelector(".message-history");
+
+            const contact = row.cells[4].innerText.trim();
+            const email = row.cells[5].innerText.trim();
+            const contactValid = /^[6-9]\d{9}$/.test(contact);
+            const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+            const msgDateStr = formatDateLocal(messageDate);
+
+            if (contactValid && emailValid) {
+                historyCell.innerText += `Sent on ${msgDateStr}\n`;
+            } else {
+                historyCell.innerText += `Failed on ${msgDateStr}\n`;
+            }
+
+            row.dataset.updated = true;
+            row.querySelector(".resend-msg").disabled = false;
+        }
+    });
+}
+
+function attachViewButtons() {
+    document.querySelectorAll(".view-msg").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const row = btn.closest("tr");
+            messageText.innerText =
+                `Dear ${row.cells[1].innerText},\n\nThis is a reminder for your scheduled doctor revisit.\n\n– Healthcare Team`;
+            modal.show();
+        });
+    });
+}
+
+function attachResendButtons() {
+    document.querySelectorAll(".resend-msg").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const row = btn.closest("tr");
+            const historyCell = row.querySelector(".message-history");
+            const todayStr = formatDateLocal(new Date());
+            historyCell.innerText += `Resent on ${todayStr}\n`;
+        });
+    });
+}
+
+function filterTable() {
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const agent = row.cells[3].innerText.toLowerCase();
+        const date = row.cells[8].innerText;
+        let show = true;
+
+        if (searchInput.value && !text.includes(searchInput.value.toLowerCase())) show = false;
+        if (agentFilter.value && agent !== agentFilter.value.toLowerCase()) show = false;
+        if (dateFilter.value && date !== dateFilter.value) show = false;
+
+        row.style.display = show ? "" : "none";
+    });
+}
+
+attachViewButtons();
+attachResendButtons();
+updateMessageHistory();
+
+searchInput.addEventListener("keyup", filterTable);
+agentFilter.addEventListener("change", filterTable);
+dateFilter.addEventListener("change", filterTable);
+</script>
+
+</body>
+</html>

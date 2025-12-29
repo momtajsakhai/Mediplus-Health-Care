@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Management - Medical Service Management System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        @media print {
+            body { margin: 0; font-size: 14px; }
+            #patientPrintArea {
+                width: 210mm;
+                min-height: 297mm;
+                padding: 20mm;
+                box-sizing: border-box;
+            }
+            .rx-area {
+                height: 500px;
+                border: 2px solid #000;
+                padding: 15px;
+                font-size: 18px;
+                margin-bottom: 20px;
+            }
+            .patient-info table td {
+                font-size: 16px;
+                padding: 5px;
+            }
+            .page-break { page-break-after: always; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html"><img src="logo.png" style="width: 2em; height: 1em;" class="me-2">
+            Mediplus Health Care</a>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- SIDEBAR -->
+            <div class="col-md-2 sidebar">
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                    <a class="nav-link" href="agents.html"><i class="bi bi-person-badge me-2"></i>Agents</a>
+                    <a class="nav-link" href="doctors.html"><i class="bi bi-heart-pulse me-2"></i>Doctors</a>
+                    <a class="nav-link active" href="patients.html"><i class="bi bi-people me-2"></i>Patients</a>
+                    <a class="nav-link" href="account.html"><i class="bi bi-file-medical me-2"></i>Services Account</a>
+                    <a class="nav-link" href="invoices.html"><i class="bi bi-receipt me-2"></i>Invoices</a>
+                    <a class="nav-link" href="billing.html"><i class="bi bi-calculator me-2"></i>Billing</a>
+                    <a class="nav-link" href="patientDues.html"><i class="bi bi-exclamation-circle me-2"></i>Patient Dues</a>
+                     <a class="nav-link" href="report.html"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
+                     <a class="nav-link" href="doctorRevisit.html"><i class="bi bi-calendar-check me-2"></i>Doctor Revisit</a>
+                </nav>
+            </div>
+
+
+
+    <!-- MAIN CONTENT -->
+    <div class="col-md-10 main-content">
+              
+
+
+        <div class="d-flex justify-content-between mb-4">
+            <h2><i class="bi bi-people me-2"></i>Patient Management</h2>
+            <button class="btn btn-warning" onclick="showForm()"><i class="bi bi-plus-circle me-2"></i>Add New Patient</button>
+        </div>
+
+     
+
+        <!-- PATIENT FORM -->
+        <div class="card mb-4" id="patientForm" style="display: none;">
+            <div class="card-header"><h5 id="formTitle">Add New Patient</h5></div>
+            <div class="card-body">
+                <form id="patientFormElement" onsubmit="savePatient(event)">
+                    <input type="hidden" id="patientId">
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label">Name</label><input type="text" class="form-control" id="patientName" required></div>
+                        <div class="col-md-6 mb-3"><label class="form-label">Date of Registration</label><input type="date" class="form-control" id="patientDor" required></div>
+                        <div class="col-md-4 mb-3"><label class="form-label">Age</label><input type="number" class="form-control" id="patientAge"></div>
+                        <div class="col-md-4 mb-3"><label class="form-label">Date of Birth</label><input type="date" class="form-control" id="patientDob"></div>
+                        <div class="col-md-4 mb-3"><label class="form-label">Agent Reference</label><select class="form-select" id="patientAgent"><option value="">Select Agent</option></select></div>
+                        <div class="col-md-6 mb-3"><label class="form-label">ID Proof</label><input type="text" class="form-control" id="patientIdProof"></div>
+                        <div class="col-md-6 mb-3"><label class="form-label">Mobile Number</label><input type="tel" class="form-control" id="patientMobile" required></div>
+                        <div class="col-md-6 mb-3"><label class="form-label">Email ID</label><input type="email" class="form-control" id="patientEmail"></div>
+                        <div class="col-md-6 mb-3"><label class="form-label">Emergency Contact</label><input type="tel" class="form-control" id="patientEmergency"></div>
+                        <div class="col-md-12 mb-3"><label class="form-label">Address</label><textarea class="form-control" id="patientAddress" rows="3"></textarea></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-warning" type="submit"><i class="bi bi-save me-2"></i>Save</button>
+                        <button class="btn btn-secondary" type="button" onclick="hideForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PATIENT TABLE -->
+        <div class="card">
+            <div class="card-header"><h5>All Patients</h5></div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>DOR</th>
+                                <th>Age</th>
+                                <th>Mobile</th>
+                                <th>Agent</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+
+<!-- PATIENT VIEW & PRINT MODAL -->
+<div class="modal fade" id="patientViewModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="patientPrintArea"></div>
+      <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" onclick="printPatient()"><i class="bi bi-printer me-2"></i>Print</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DUES MODAL -->
+<!-- DUES MODAL -->
+<div class="modal fade" id="duesModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle me-2"></i>Dues From Patients
+        </h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+    <thead class="table-danger">
+        <tr>
+            <th>Patient ID</th>
+            <th>Patient Name</th>
+            <th>Agent ID</th>
+            <th>Agent Name</th>
+            <th>Total (₹)</th>
+            <th>Test Amount (₹)</th>
+            <th>Payment (₹)</th>
+            <th>Due (₹)</th>
+        </tr>
+    </thead>
+    <tbody id="doctorDuesSameTableBody"></tbody>
+    <tfoot>
+        <tr class="table-secondary">
+            <th colspan="7" class="text-end">Total Dues:</th>
+            <th id="totalDues">₹0.00</th>
+        </tr>
+    </tfoot>
+</table>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔴 DOCTOR REVISIT MODAL -->
+<div class="modal fade" id="doctorRevisitModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+            <i class="bi bi-bell me-2"></i>Doctor Revisit Alert
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-bordered table-hover">
+            <thead class="table-warning">
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Contact Number</th>
+                    <th>Last Visit Date</th>
+                    <th>Date of Revisit</th>
+                    <th>Doctor Name</th>
+                    <th>Action</th> <!-- Added Action column -->
+                </tr>
+            </thead>
+            <tbody id="doctorRevisitTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ===================== Storage Helper =====================
+const Storage = {
+    get: key => JSON.parse(localStorage.getItem(key) || '[]'),
+    set: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
+    add: (key, item) => {
+        const data = Storage.get(key);
+        const newId = data.length ? Math.max(...data.map(d => d.id || 0)) + 1 : 1;
+        item.id = newId;
+        data.push(item);
+        Storage.set(key, data);
+        return item;
+    },
+    update: (key, id, updatedItem) => {
+        const data = Storage.get(key);
+        const index = data.findIndex(d => d.id === id);
+        if(index !== -1) {
+            data[index] = {...data[index], ...updatedItem};
+            Storage.set(key, data);
+        }
+    },
+    delete: (key, id) => {
+        const data = Storage.get(key).filter(item => item.id !== id);
+        Storage.set(key, data);
+        return data;
+    },
+    findById: (key, id) => {
+        const data = Storage.get(key);
+        return data.find(item => item.id === id);
+    }
+};
+
+// ===================== Patient Functions =====================
+let editingPatientId = null;
+
+function loadAgents() {
+    const agents = JSON.parse(localStorage.getItem("agents") || "[]");
+    const select = document.getElementById("patientAgent");
+
+    select.innerHTML = '<option value="">Select Agent</option>' +
+        agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+}
+
+
+function loadPatients() {
+    const patients = Storage.get('patients');
+    const agents = Storage.get('agents');
+    const tbody = document.getElementById('patientsTableBody');
+    if(!patients.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No patients found.</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = patients.map(p => {
+        const agent = agents.find(a => a.id == p.agent_reference);
+        return `
+            <tr>
+                <td>${p.id}</td>
+                <td>${p.name}</td>
+                <td>${p.dor}</td>
+                <td>${p.age || '-'}</td>
+                <td>${p.mobile_number}</td>
+                <td>${agent ? agent.name : '-'}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editPatient(${p.id})"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="deletePatient(${p.id})"><i class="bi bi-trash"></i></button>
+                    <button class="btn btn-sm btn-info" onclick="viewPrescription(${p.id})"><i class="bi bi-printer"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function showForm() { editingPatientId = null; document.getElementById('patientFormElement').reset(); document.getElementById('patientForm').style.display='block'; document.getElementById('formTitle').textContent='Add New Patient'; loadAgents(); }
+function hideForm() { editingPatientId = null; document.getElementById('patientForm').style.display='none'; }
+
+function savePatient(e) {
+    e.preventDefault();
+    const data = {
+        name: patientName.value,
+        dor: patientDor.value,
+        age: patientAge.value?parseInt(patientAge.value):null,
+        dob: patientDob.value,
+        agent_reference: patientAgent.value?parseInt(patientAgent.value):null,
+        id_proof: patientIdProof.value,
+        mobile_number: patientMobile.value,
+        email_id: patientEmail.value,
+        emergency_contact: patientEmergency.value,
+        address: patientAddress.value
+    };
+    if(editingPatientId) {
+        Storage.update('patients', editingPatientId, data);
+        alert('Patient updated successfully');
+    } else {
+        Storage.add('patients', data);
+        alert('Patient created successfully');
+    }
+    hideForm();
+    loadPatients();
+}
+
+function editPatient(id) {
+    const patient = Storage.findById('patients', id);
+    if(!patient) { alert('Patient not found'); return; }
+    editingPatientId = id;
+    showForm();
+    patientName.value = patient.name;
+    patientDor.value = patient.dor;
+    patientAge.value = patient.age || '';
+    patientDob.value = patient.dob || '';
+    patientAgent.value = patient.agent_reference || '';
+    patientIdProof.value = patient.id_proof || '';
+    patientMobile.value = patient.mobile_number;
+    patientEmail.value = patient.email_id || '';
+    patientEmergency.value = patient.emergency_contact || '';
+    patientAddress.value = patient.address || '';
+    document.getElementById('formTitle').textContent = 'Edit Patient';
+}
+
+function deletePatient(id) {
+    if(!confirm('Are you sure?')) return;
+    Storage.delete('patients', id);
+    loadPatients();
+    alert('Patient deleted successfully');
+}
+
+function viewPrescription(id) {
+    const patient = Storage.findById('patients', id);
+    if(!patient) return;
+    const html = `
+        <div style="text-align:center; margin-bottom:20px;">
+            <img src="logo.png" style="height:90px; margin-bottom:10px;">
+            <h2><b>Mediplus Health Care</b></h2>
+            <h5>24/A Sriram Siromoni Road, Berhampore</h5>
+            <h6>Phone: 9800958006 | Email: mediplus.health@gmail.com</h6>
+            <hr>
+        </div>
+        <div class="patient-info">
+            <table style="width:100%; font-size:14px;">
+                <tr><td><b>Doctor Name:</b></td><td>Dr M. Khatun</td><td><b>Patient Name:</b></td><td>${patient.name}</td></tr>
+                <tr><td><b>Patient ID:</b></td><td>${patient.id}</td><td><b>Age:</b></td><td>${patient.age || "-"}</td></tr>
+                <tr><td><b>Mobile:</b></td><td>${patient.mobile_number}</td><td></td><td></td></tr>
+            </table>
+        </div>
+        <h4><b>Rx (Doctor's Prescription)</b></h4>
+        <div class="rx-area"></div>
+        <div style="text-align:right; font-size:16px; margin-top:30px;">
+            <b>Doctor's Signature:</b> ____________________________
+        </div>
+    `;
+    document.getElementById('patientPrintArea').innerHTML = html;
+    new bootstrap.Modal(document.getElementById('patientViewModal')).show();
+}
+
+function printPatient() {
+    const printContents = document.getElementById('patientPrintArea').innerHTML;
+    const win = window.open('', '', 'width=900,height=700');
+    win.document.write(`<html><head><title>Print Prescription</title></head><body>${printContents}</body></html>`);
+    win.document.close();
+    win.print();
+}
+
+// ===================== SHOW DUES FROM INVOICES =====================
+// Price map for test amount calculation
+const priceMap = { "Blood Test":50, "X-Ray":100, "MRI":500, "Urine Test":30, "ECG":70 };
+
+function showDues() {
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+    const tbody = document.getElementById('doctorDuesSameTableBody');
+    const totalCell = document.getElementById('totalDues');
+
+    tbody.innerHTML = '';
+    let totalDues = 0;
+
+    const dueInvoices = invoices.filter(inv => Number(inv.due || 0) > 0);
+
+    if (!dueInvoices.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-success">🎉 No dues found</td></tr>`;
+        totalCell.innerText = "₹0.00";
+    } else {
+        dueInvoices.forEach(inv => {
+            let testAmount = 0;
+            (inv.tests || '').split(',').map(t => t.trim()).forEach(testName => {
+                testAmount += priceMap[testName] || 0;
+            });
+
+            totalDues += Number(inv.due || 0);
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${inv.patientId || '-'}</td>
+                    <td>${inv.patientName || '-'}</td>
+                    <td>${inv.agentId || '-'}</td>
+                    <td>${inv.agentName || '-'}</td>
+                    <td>₹${Number(inv.total || 0).toFixed(2)}</td>
+                    <td>₹${testAmount.toFixed(2)}</td>
+                    <td>₹${Number(inv.payment || 0).toFixed(2)}</td>
+                    <td class="fw-bold text-danger">₹${Number(inv.due || 0).toFixed(2)}</td>
+                </tr>
+            `;
+        });
+
+        totalCell.innerText = `₹${totalDues.toFixed(2)}`;
+    }
+
+    // Show modal
+    const duesModal = new bootstrap.Modal(document.getElementById('duesModal'));
+    duesModal.show();
+}
+
+
+
+
+function showDoctorRevisitAlert() {
+    const tbody = document.getElementById("doctorRevisitTableBody");
+    tbody.innerHTML = "";
+
+    // 5 static data entries
+    const data = [
+        {name: "John Doe", contact: "+911234567890", lastVisit: "2025-12-01", revisit: "2025-12-20", doctor: "Dr. Smith"},
+        {name: "Jane Roe", contact: "+911234567891", lastVisit: "2025-12-03", revisit: "2025-12-22", doctor: "Dr. Patel"},
+        {name: "Alice Johnson", contact: "+911234567892", lastVisit: "2025-12-05", revisit: "2025-12-25", doctor: "Dr. Kumar"},
+        {name: "Bob Lee", contact: "+911234567893", lastVisit: "2025-12-07", revisit: "2025-12-28", doctor: "Dr. Sharma"},
+        {name: "Charlie Brown", contact: "+911234567894", lastVisit: "2025-12-10", revisit: "2025-12-30", doctor: "Dr. Reddy"},
+    ];
+
+    data.forEach(d => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${d.name}</td>
+                <td>${d.contact}</td>
+                <td>${d.lastVisit}</td>
+                <td>${d.revisit}</td>
+                <td>${d.doctor}</td>
+                <td class="text-center">
+                    <a href="https://wa.me/${d.contact.replace('+','')}" target="_blank" class="me-2 text-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    <a href="mailto:${d.name.replace(' ','.')}@gmail.com" class="me-2 text-danger" title="Gmail"><i class="bi bi-envelope"></i></a>
+                    <a href="sms:${d.contact}" class="me-2 text-primary" title="Message"><i class="bi bi-chat-dots"></i></a>
+                    <a href="tel:${d.contact}" class="text-dark" title="Call"><i class="bi bi-telephone"></i></a>
+                </td>
+            </tr>
+        `;
+    });
+
+    new bootstrap.Modal(document.getElementById("doctorRevisitModal")).show();
+}
+// Show dues modal
+function showDoctorDuesSame() {
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+    const tbody = document.getElementById('doctorDuesSameTableBody');
+    const totalCell = document.getElementById('doctorDuesSameTotal');
+
+    tbody.innerHTML = '';
+    let totalDues = 0;
+
+    if (!invoices.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-success">🎉 No dues found</td></tr>`;
+        totalCell.innerText = "₹0.00";
+    } else {
+        invoices.filter(inv => Number(inv.due || 0) > 0).forEach(inv => {
+            const totalAmount = Number(inv.total || 0);
+            const paymentMade = Number(inv.payment || 0);
+            const dueAmount = Number(inv.due || 0);
+
+            // Calculate test amount
+            let testAmount = 0;
+            (inv.tests || '').split(',').map(t => t.trim()).forEach(testName => {
+                testAmount += priceMap[testName] || 0;
+            });
+
+            totalDues += dueAmount;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${inv.patientId || '-'}</td>
+                    <td>${inv.patientName || '-'}</td>
+                    <td>${inv.agentId || '-'}</td>
+                    <td>${inv.agentName || '-'}</td>
+                    <td>₹${totalAmount.toFixed(2)}</td>
+                    <td>₹${testAmount.toFixed(2)}</td>
+                    <td>₹${paymentMade.toFixed(2)}</td>
+                    <td class="fw-bold text-danger">₹${dueAmount.toFixed(2)}</td>
+                </tr>`;
+        });
+
+        totalCell.innerText = `₹${totalDues.toFixed(2)}`;
+    }
+
+    new bootstrap.Modal(document.getElementById('doctorDuesSameModal')).show();
+}
+
+// ===================== INITIALIZE =====================
+document.addEventListener('DOMContentLoaded', () => {
+    loadAgents();
+    loadPatients();
+});
+</script>
+
+</body>
+</html>

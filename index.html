@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Service Management System - Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        #topTimer {
+            font-size: 1.1rem;
+            color: white;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Timer Bar -->
+<div class="bg-dark py-1 d-flex align-items-center px-3">
+    <span class="me-2 text-white"><i class="bi bi-clock-history"></i> Current Time:</span>
+    <span id="topTimer">--:--:--</span>
+</div>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid d-flex align-items-center">
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <img src="logo.png" alt="Hospital Icon" class="me-2" style="width:2em;height:1em;">
+            Mediplus Health Care
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <span class="navbar-text text-white">
+                        <i class="bi bi-person-circle me-2"></i>Admin
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar">
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="index.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                <a class="nav-link" href="agents.html"><i class="bi bi-person-badge me-2"></i>Agents</a>
+                <a class="nav-link" href="doctors.html"><i class="bi bi-heart-pulse me-2"></i>Doctors</a>
+                <a class="nav-link" href="patients.html"><i class="bi bi-people me-2"></i>Patients</a>
+                <a class="nav-link" href="account.html"><i class="bi bi-file-medical me-2"></i>Services Account</a>
+                <a class="nav-link" href="invoices.html"><i class="bi bi-receipt me-2"></i>Invoices</a>
+                <a class="nav-link" href="billing.html"><i class="bi bi-calculator me-2"></i>Billing</a>
+                <a class="nav-link" href="patientDues.html"><i class="bi bi-exclamation-circle me-2"></i>Patient Dues</a>
+                <a class="nav-link" href="report.html"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
+                <a class="nav-link" href="doctorRevisit.html"><i class="bi bi-calendar-check me-2"></i>Doctor Revisit</a>
+            </nav>
+        </div>
+        
+
+        <!-- Main Content -->
+        <div class="col-md-10 main-content p-4">
+
+
+            <h2><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+              
+            <!-- Stats -->
+            <div class="row mt-4">
+                <div class="col-md-3 mb-4">
+                    <div class="card stat-card"><div class="card-body">
+                        <h5>Agents</h5><h2 id="agentsCount">0</h2>
+                    </div></div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card stat-card"><div class="card-body">
+                        <h5>Doctors</h5><h2 id="doctorsCount">0</h2>
+                    </div></div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card stat-card"><div class="card-body">
+                        <h5>Patients</h5><h2 id="patientsCount">0</h2>
+                    </div></div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card stat-card"><div class="card-body">
+                        <h5>Invoices</h5><h2 id="invoiceCount">0</h2>
+                    </div></div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+
+                        <div class="col-md-3 mb-3">
+                            <button onclick="addSampleAgent()" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-person-plus me-2"></i>Add Agent
+                            </button>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <button onclick="addSampleDoctor()" class="btn btn-outline-success w-100">
+                                <i class="bi bi-heart-pulse me-2"></i>Add Doctor
+                            </button>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <button onclick="addSamplePatient()" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-person-plus me-2"></i>Add Patient
+                            </button>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <button onclick="openDueModal()" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                View Patient Dues
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Dues Modal -->
+<div class="modal fade" id="dueModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Dues From Patients
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Patient Name</th>
+                            <th>Agent ID</th>
+                            <th>Agent Name</th>
+                            <th>Due (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dueTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 🔴 DOCTOR / PATIENT DUES MODAL (ADD ONLY) -->
+<!-- 🔴 DOCTOR / PATIENT DUES MODAL (ADD ONLY) -->
+<div class="modal fade" id="doctorDuesSameModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+            <i class="bi bi-exclamation-triangle me-2"></i>Patient Dues
+        </h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+         <table class="table table-bordered table-hover">
+    <thead class="table-danger">
+        <tr>
+            <th>Patient ID</th>
+            <th>Patient Name</th>
+            <th>Agent ID</th>
+            <th>Agent Name</th>
+            <th>Total (₹)</th>
+            <th>Payment (₹)</th>
+            <th>Due (₹)</th>
+        </tr>
+    </thead>
+
+    <tbody id="doctorDuesSameTableBody"></tbody>
+
+    <tfoot class="table-danger">
+        <tr>
+            <th colspan="6" class="text-end">Total Dues:</th>
+            <th id="doctorDuesSameTotal" class="fw-bold text-danger">₹0.00</th>
+        </tr>
+    </tfoot>
+</table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔴 DOCTOR REVISIT MODAL -->
+<div class="modal fade" id="doctorRevisitModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+            <i class="bi bi-bell me-2"></i>Doctor Revisit Alert
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-bordered table-hover">
+            <thead class="table-warning">
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Contact Number</th>
+                    <th>Last Visit Date</th>
+                    <th>Date of Revisit</th>
+                    <th>Doctor Name</th>
+                    <th>Action</th> <!-- Added Action column -->
+                </tr>
+            </thead>
+            <tbody id="doctorRevisitTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ================================
+// Storage Helper
+// ================================
+const Storage = {
+    get: key => JSON.parse(localStorage.getItem(key) || '[]'),
+    set: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
+    add: (key, item) => {
+        const data = Storage.get(key);
+        const newId = data.length ? Math.max(...data.map(d => d.id || 0)) + 1 : 1;
+        item.id = newId;
+        data.push(item);
+        Storage.set(key, data);
+        updateDashboardStats();
+        return item;
+    }
+};
+
+// ================================
+// Dashboard Stats
+// ================================
+function updateDashboardStats() {
+    document.getElementById('agentsCount').innerText = Storage.get('agents').length;
+    document.getElementById('doctorsCount').innerText = Storage.get('doctors').length;
+    document.getElementById('patientsCount').innerText = Storage.get('patients').length;
+    document.getElementById('invoiceCount').innerText = Storage.get('invoices').length;
+}
+
+// ================================
+// Timer
+// ================================
+function updateTopTimer() {
+    const n = new Date();
+    document.getElementById("topTimer").innerText =
+        `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+}
+setInterval(updateTopTimer, 1000);
+updateTopTimer();
+
+// ================================
+// Dues
+// ================================
+function openDueModal() {
+    const invoices = Storage.get('invoices').filter(i => parseFloat(i.due || 0) > 0);
+    const tbody = document.getElementById('dueTableBody');
+    tbody.innerHTML = '';
+    if(!invoices.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-success">No pending dues 🎉</td></tr>';
+    } else {
+        invoices.forEach(inv => {
+            tbody.innerHTML += `<tr>
+                <td>${inv.patientId || 'N/A'}</td>
+                <td>${inv.patientName}</td>
+                <td>${inv.agentId || 'N/A'}</td>
+                <td>${inv.agentName}</td>
+                <td class="text-danger fw-bold">₹${parseFloat(inv.due).toFixed(2)}</td>
+            </tr>`;
+        });
+    }
+    new bootstrap.Modal(document.getElementById('dueModal')).show();
+}
+
+// ================================
+// Quick Sample Adders
+// ================================
+function addSampleAgent() { Storage.add('agents', {name:'Agent '+(Storage.get('agents').length+1)}); }
+function addSampleDoctor() { Storage.add('doctors', {name:'Doctor '+(Storage.get('doctors').length+1)}); }
+function addSamplePatient() { 
+    const p = Storage.add('patients', {name:'Patient '+(Storage.get('patients').length+1)});
+    Storage.add('invoices', {
+        patientId: p.id,
+        patientName: p.name,
+        agentId: 1,
+        agentName: 'Agent 1',
+        due: Math.floor(Math.random()*500),
+        total: 1000,
+        discount: 10,
+        payment: 500
+    });
+}
+
+// ================================
+// Initialize
+// ================================
+document.addEventListener('DOMContentLoaded', () => {
+    updateDashboardStats();
+});
+
+
+/* -------- GET DATA DIRECTLY FROM INVOICES (ADD ONLY) -------- */
+function showDoctorDuesSame() {
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+    const tbody = document.getElementById("doctorDuesSameTableBody");
+    const totalCell = document.getElementById("doctorDuesSameTotal");
+
+    tbody.innerHTML = "";
+    let totalDues = 0;
+
+    // Price map for test calculation
+    const priceMap = { "Blood Test":50, "X-Ray":100, "MRI":500, "Urine Test":30, "ECG":70 };
+
+    const dueInvoices = invoices.filter(inv => Number(inv.due || 0) > 0);
+
+    if (!dueInvoices.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center text-success">
+                    🎉 No dues found
+                </td>
+            </tr>`;
+        totalCell.innerText = "₹0.00";
+    } else {
+        dueInvoices.forEach(inv => {
+            const dueAmount = Number(inv.due || 0);
+            const paymentMade = Number(inv.payment || 0);
+            const totalAmount = Number(inv.total || 0);
+
+            // Calculate test amount
+            let testAmount = 0;
+            (inv.tests || '').split(',').map(t => t.trim()).forEach(testName => {
+                testAmount += priceMap[testName] || 0;
+            });
+
+            totalDues += dueAmount;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${inv.patientId || '-'}</td>
+                    <td>${inv.patientName || '-'}</td>
+                    <td>${inv.agentId || '-'}</td>
+                    <td>${inv.agentName || '-'}</td>
+                    
+                    <td>₹${totalAmount.toFixed(2)}</td>
+                   <td>₹${paymentMade.toFixed(2)}</td>
+                    <td class="fw-bold text-danger">₹${dueAmount.toFixed(2)}</td>
+                </tr>`;
+        });
+
+        totalCell.innerText = `₹${totalDues.toFixed(2)}`;
+    }
+
+    new bootstrap.Modal(document.getElementById("doctorDuesSameModal")).show();
+}
+
+function showDoctorRevisitAlert() {
+    const tbody = document.getElementById("doctorRevisitTableBody");
+    tbody.innerHTML = "";
+
+    // 5 static data entries
+    const data = [
+        {name: "John Doe", contact: "+911234567890", lastVisit: "2025-12-01", revisit: "2025-12-20", doctor: "Dr. Smith"},
+        {name: "Jane Roe", contact: "+911234567891", lastVisit: "2025-12-03", revisit: "2025-12-22", doctor: "Dr. Patel"},
+        {name: "Alice Johnson", contact: "+911234567892", lastVisit: "2025-12-05", revisit: "2025-12-25", doctor: "Dr. Kumar"},
+        {name: "Bob Lee", contact: "+911234567893", lastVisit: "2025-12-07", revisit: "2025-12-28", doctor: "Dr. Sharma"},
+        {name: "Charlie Brown", contact: "+911234567894", lastVisit: "2025-12-10", revisit: "2025-12-30", doctor: "Dr. Reddy"},
+    ];
+
+    data.forEach(d => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${d.name}</td>
+                <td>${d.contact}</td>
+                <td>${d.lastVisit}</td>
+                <td>${d.revisit}</td>
+                <td>${d.doctor}</td>
+                <td class="text-center">
+                    <a href="https://wa.me/${d.contact.replace('+','')}" target="_blank" class="me-2 text-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    <a href="mailto:${d.name.replace(' ','.')}@gmail.com" class="me-2 text-danger" title="Gmail"><i class="bi bi-envelope"></i></a>
+                    <a href="sms:${d.contact}" class="me-2 text-primary" title="Message"><i class="bi bi-chat-dots"></i></a>
+                    <a href="tel:${d.contact}" class="text-dark" title="Call"><i class="bi bi-telephone"></i></a>
+                </td>
+            </tr>
+        `;
+    });
+
+    new bootstrap.Modal(document.getElementById("doctorRevisitModal")).show();
+}
+
+
+
+
+</script>
+
+</body>
+</html>

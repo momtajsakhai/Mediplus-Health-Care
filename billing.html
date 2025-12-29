@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dues - Medical Service Management System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+            <img src="logo.png" class="me-2" style="width:2em;height:1em;">
+            Mediplus Health Care
+        </a>
+    </div>
+</nav>
+
+<div class="container-fluid">
+<div class="row">
+
+<!-- SIDEBAR -->
+<div class="col-md-2 sidebar">
+    <nav class="nav flex-column">
+        <a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+        <a class="nav-link" href="agents.html"><i class="bi bi-person-badge me-2"></i>Agents</a>
+        <a class="nav-link" href="doctors.html"><i class="bi bi-heart-pulse me-2"></i>Doctors</a>
+        <a class="nav-link" href="patients.html"><i class="bi bi-people me-2"></i>Patients</a>
+        <a class="nav-link" href="account.html"><i class="bi bi-file-medical me-2"></i>Services Account</a>
+        <a class="nav-link" href="invoices.html"><i class="bi bi-receipt me-2"></i>Invoices</a>
+        <a class="nav-link active" href="billing.html"><i class="bi bi-calculator me-2"></i>Billing</a>
+        <a class="nav-link " href="patientDues.html"><i class="bi bi-exclamation-circle me-2"></i>Patient Dues</a>
+        <a class="nav-link" href="report.html"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
+        <a class="nav-link" href="doctorRevisit.html"><i class="bi bi-calendar-check me-2"></i>Doctor Revisit</a>
+    </nav>
+</div>
+
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-10 main-content p-4">
+          
+              
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-calculator me-2"></i>Billing Management</h2>
+            </div>
+
+            <!-- BILLING CARDS -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card light-green">
+                        <div class="card-body">
+                            <h6>Total Billed Amount</h6>
+                            <h4 id="totalRevenue">₹0.00</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card light-pink">
+                        <div class="card-body">
+                            <h6>Agent Commission</h6>
+                            <h4 id="agentCommission">₹0.00</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card light-pink">
+                        <div class="card-body">
+                            <h6>Discount</h6>
+                            <h4 id="discountSum">₹0.00</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card light-green">
+                        <div class="card-body">
+                            <h6>Revenue After Deductions</h6>
+                            <h4 id="netRevenue">₹0.00</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mt-3">
+                    <div class="card stat-card light-pink">
+                        <div class="card-body">
+                            <h6>Total Due From Patient</h6>
+                            <h4 id="totalDue">₹0.00</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mt-3">
+                    <div class="card stat-card dark-green">
+                        <div class="card-body">
+                            <h6>Payment Received</h6>
+                            <h4 id="paymentReceived">₹0.00</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STACKED BAR CHART -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Billing Summary Chart</h5>
+                    <div class="chart-container">
+                        <canvas id="billingChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- DUE TABLE MODAL -->
+<div class="modal fade" id="dueModal" tabindex="-1" aria-labelledby="dueModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dueModalLabel">Due Amount Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" id="dueTable">
+            <thead class="table-light">
+              <tr>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Agent ID</th>
+                <th>Agent Name</th>
+                <th>Amount Due (₹)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="dueAlertModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Patient Due List
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-danger">
+                            <tr>
+                                <th>Patient Name</th>
+                                <th>Patient ID</th>
+                                <th>Agent Name</th>
+                                <th>Agent ID</th>
+                                <th>Due (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dueTableBody"></tbody>
+                        <tfoot>
+    <tr class="table-warning fw-bold">
+      <td colspan="4" class="text-end">Total Due</td>
+      <td id="totalDueAlert">₹0.00</td>
+    </tr>
+  </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    document.getElementById('dueAlertModal').addEventListener('show.bs.modal', () => {
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+    const tbody = document.getElementById('dueTableBody');
+
+    const dueList = invoices.filter(inv => Number(inv.due) > 0);
+
+    if (dueList.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-success fw-bold">
+                    🎉 No pending dues found
+                </td>
+            </tr>`;
+        return;
+    }
+
+    tbody.innerHTML = dueList.map(inv => `
+        <tr>
+            <td>${inv.patientName || 'N/A'}</td>
+            <td>${inv.patientId || 'N/A'}</td>
+            <td>${inv.agentName || 'N/A'}</td>
+            <td>${inv.agentId || 'N/A'}</td>
+            <td class="text-danger fw-bold">₹${Number(inv.due).toFixed(2)}</td>
+        </tr>
+    `).join('');
+});
+
+let chartInstance;
+
+function updateBillingCards() {
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+
+    let totalRevenue = 0,
+        agentCommission = 0,
+        discountSum = 0,
+        totalDue = 0,
+        paymentReceived = 0;
+
+   invoices.forEach(inv => {
+    const total = Number(inv.total) || 0;
+    const discount = Number(inv.discount) || 0;
+    const due = Number(inv.due) || 0;
+    const paid = Number(inv.payment) || 0;
+    const commission = Number(inv.commission) || 0;
+
+    totalRevenue += total;
+    agentCommission += commission;   // ✅ SUM OF AGENT COMMISSION
+
+    discountSum += (total * discount) / 100;
+    totalDue += due;
+    paymentReceived += paid;
+});
+
+
+    const netRevenue = totalRevenue - agentCommission - discountSum;
+
+    document.getElementById('totalRevenue').innerText = '₹' + totalRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('agentCommission').innerText = '₹' + agentCommission.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('discountSum').innerText = '₹' + discountSum.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('netRevenue').innerText = '₹' + netRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('totalDue').innerText = '₹' + totalDue.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('paymentReceived').innerText = '₹' + paymentReceived.toLocaleString('en-IN', {minimumFractionDigits: 2});
+
+    const ctx = document.getElementById('billingChart').getContext('2d');
+
+    if(chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Billing Metrics'],
+            datasets: [
+                { label: 'Agent Commission', data: [agentCommission], backgroundColor: '#f8c8d8' },
+                { label: 'Discount', data: [discountSum], backgroundColor: '#f8c8d8' },
+                { label: 'Revenue After Deductions', data: [netRevenue], backgroundColor: '#9be7c4' },
+                { label: 'Total Due', data: [totalDue], backgroundColor: '#f8c8d8' },
+                { label: 'Payment Received', data: [paymentReceived], backgroundColor: '#0b6623' }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
+            }
+        }
+    });
+}
+
+setInterval(updateBillingCards, 5000);
+document.addEventListener('DOMContentLoaded', updateBillingCards);
+
+// DUE MODAL SCRIPT
+const totalDueCard = document.getElementById('totalDue');
+const dueTableBody = document.querySelector('#dueTable tbody');
+const dueModalEl = document.getElementById('dueModal');
+const dueModal = new bootstrap.Modal(dueModalEl);
+
+totalDueCard.parentElement.addEventListener('click', () => {
+    const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+    dueTableBody.innerHTML = '';
+
+    invoices.forEach(inv => {
+        if(parseFloat(inv.due || 0) > 0) {
+            const row = document.createElement('tr');
+
+            const patientId = inv.patientId || 'N/A';
+            const patientName = inv.patientName || 'N/A';
+            const agentId = inv.agentId || 'N/A';
+            const agentName = inv.agentName || 'N/A';
+            const amountDue = parseFloat(inv.due);
+
+            row.innerHTML = `
+                <td>${patientId}</td>
+                <td>${patientName}</td>
+                <td>${agentId}</td>
+                <td>${agentName}</td>
+                <td>₹${amountDue.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+            `;
+
+            if(amountDue >= 50000) row.style.backgroundColor = '#f8d7da';
+
+            dueTableBody.appendChild(row);
+        }
+    });
+
+    dueModal.show();
+
+    if ($.fn.DataTable.isDataTable('#dueTable')) $('#dueTable').DataTable().destroy();
+
+    $('#dueTable').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        order: [[4, 'desc']],
+        lengthMenu: [5, 10, 25, 50],
+        pageLength: 10
+    });
+});
+</script>
+
+</body>
+</html>

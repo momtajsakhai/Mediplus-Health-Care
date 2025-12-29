@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Management - Medical Service Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+            <img src="logo.png" alt="Hospital Icon" class="me-2" style="width: 2em; height: 1em;">
+            Mediplus Health Care
+        </a>
+    </div>
+</nav>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                <a class="nav-link" href="agents.html"><i class="bi bi-person-badge me-2"></i>Agents</a>
+                <a class="nav-link" href="doctors.html"><i class="bi bi-heart-pulse me-2"></i>Doctors</a>
+                <a class="nav-link" href="patients.html"><i class="bi bi-people me-2"></i>Patients</a>
+                <a class="nav-link" href="account.html"><i class="bi bi-file-medical me-2"></i>Services Account</a>
+                <a class="nav-link" href="invoices.html"><i class="bi bi-receipt me-2"></i>Invoices</a>
+                <a class="nav-link" href="billing.html"><i class="bi bi-calculator me-2"></i>Billing</a>
+                <a class="nav-link" href="patientDues.html"><i class="bi bi-exclamation-circle me-2"></i>Patient Dues</a>
+                <a class="nav-link active" href="report.html"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
+                <a class="nav-link" href="doctorRevisit.html"><i class="bi bi-calendar-check me-2"></i>Doctor Revisit</a>
+            </nav>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-10 p-4">
+            <!-- Create Report button -->
+            <div class="d-flex justify-content-end mb-3">
+                <button type="button" class="btn btn-success" id="createReportBtn">
+                    <i class="bi bi-file-earmark-medical me-1"></i> Create Report
+                </button>
+            </div>
+
+            <!-- Patients table -->
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Patient ID</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="patientTable">
+                    <tr data-patient-id="18541-24-25" data-patient-name="KABITA KHATUN">
+                        <td>KABITA KHATUN</td>
+                        <td>18541-24-25</td>
+                        <td>
+                            <button type="button" class="btn btn-primary printBtn">
+                                <i class="bi bi-printer me-1"></i> Print Report
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Create Test Report</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Bill No:</strong> <span id="billNo"></span> &nbsp;&nbsp; <strong>Bill Date:</strong> 10/12/2025 &nbsp;&nbsp; <strong>Barcode No:</strong> <span id="barcodeNo"></span></p>
+        <p><strong>Name:</strong> <span id="patientName"></span> &nbsp;&nbsp; <strong>Age/Sex:</strong> 31 Years/F &nbsp;&nbsp; <strong>Doctor:</strong> DR.DEBSHANKAR MUKHOPADHYAY</p>
+        <p><strong>Collected On:</strong> 10-12-2025 &nbsp;&nbsp; <strong>Received On:</strong> 10-12-2025 10:23 AM &nbsp;&nbsp; <strong>Reported On:</strong> 10-12-2025 12:02 PM</p>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Investigations</th>
+                    <th>Result</th>
+                    <th>Reference Range</th>
+                    <th>Method/Specimen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>BILIRUBIN TOTAL</td><td><input type="text" data-key="bilirubin_total" class="form-control" placeholder="Type result"></td><td>Upto 1.2 mg/dl (Infants: 0.2-8.0 mg/dl)</td><td>---</td></tr>
+                <tr><td>BILIRUBIN DIRECT</td><td><input type="text" data-key="bilirubin_direct" class="form-control" placeholder="Type result"></td><td>0-0.4 mg/dl</td><td>Diazo Modified</td></tr>
+                <tr><td>BILIRUBIN INDIRECT</td><td><input type="text" data-key="bilirubin_indirect" class="form-control" placeholder="Type result"></td><td>0.0-1.1 mg/dl</td><td>---</td></tr>
+                <tr><td>AST/SGOT</td><td><input type="text" data-key="ast_sgot" class="form-control" placeholder="Type result"></td><td>0-37 U/L (M) 0-31 U/L (F)</td><td>IFCC</td></tr>
+                <tr><td>ALT/SGPT</td><td><input type="text" data-key="alt_sgpt" class="form-control" placeholder="Type result"></td><td>0-49 U/L (M) 0-31 U/L (F)</td><td>IFCC</td></tr>
+                <tr><td>ALKALINE PHOSPHATASE</td><td><input type="text" data-key="alk_phos" class="form-control" placeholder="Type result"></td><td>25-140 IU/L (Adults)</td><td>IFCC</td></tr>
+                <tr><td>TOTAL PROTEIN</td><td><input type="text" data-key="total_protein" class="form-control" placeholder="Type result"></td><td>6.0-8.0 gm/dl (>2 yrs)</td><td>Biuret</td></tr>
+                <tr><td>ALBUMIN</td><td><input type="text" data-key="albumin" class="form-control" placeholder="Type result"></td><td>3.8-5.5 gm/dl (>18 yrs)</td><td>BCG</td></tr>
+                <tr><td>GLOBULIN</td><td><input type="text" data-key="globulin" class="form-control" placeholder="Type result"></td><td>2.5-3.5 gm/dl</td><td>Calculated</td></tr>
+                <tr><td>A/G RATIO</td><td><input type="text" data-key="ag_ratio" class="form-control" placeholder="Type result"></td><td>1.0-2.3</td><td>Calculated</td></tr>
+            </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="saveReportBtn">Save Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Print Report Modal -->
+<div class="modal fade" id="printModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Patient Test Report</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Patient Name:</strong> <span id="printName"></span></p>
+        <p><strong>Patient ID:</strong> <span id="printID"></span></p>
+        <p><strong>Bill No:</strong> <span id="printBill"></span> &nbsp;&nbsp; <strong>Bill Date:</strong> 10/12/2025</p>
+        <hr>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Investigation</th>
+                    <th>Result</th>
+                    <th>Reference Range</th>
+                    <th>Method/Specimen</th>
+                </tr>
+            </thead>
+            <tbody id="printTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Store reports in memory
+const reports = {}; 
+
+// Bootstrap modals
+const reportModalBS = new bootstrap.Modal(document.getElementById('reportModal'));
+const printModalBS = new bootstrap.Modal(document.getElementById('printModal'));
+
+const patientNameSpan = document.getElementById("patientName");
+const billNoSpan = document.getElementById("billNo");
+const barcodeNoSpan = document.getElementById("barcodeNo");
+const modalTitle = document.getElementById("modalTitle");
+
+// Create Report
+document.getElementById("createReportBtn").addEventListener("click", () => {
+    modalTitle.textContent = "Create Test Report";
+    patientNameSpan.textContent = "KABITA KHATUN";
+    billNoSpan.textContent = "18541-24-25";
+    barcodeNoSpan.textContent = "18541-24-25";
+
+    document.querySelectorAll("#reportModal input").forEach(input => input.value = "");
+    reportModalBS.show();
+});
+
+// Save Report
+document.getElementById("saveReportBtn").addEventListener("click", () => {
+    const patientId = billNoSpan.textContent;
+    reports[patientId] = {};
+    document.querySelectorAll("#reportModal input").forEach(input => {
+        reports[patientId][input.dataset.key] = input.value;
+    });
+    alert("Report Saved!");
+    reportModalBS.hide();
+});
+
+// Print Report
+document.querySelectorAll(".printBtn").forEach(btn => {
+    btn.addEventListener("click", e => {
+        const tr = e.target.closest("tr");
+        const patientId = tr.dataset.patientId;
+        const patientName = tr.dataset.patientName;
+
+        document.getElementById("printName").textContent = patientName;
+        document.getElementById("printID").textContent = patientId;
+        document.getElementById("printBill").textContent = patientId;
+
+        const tbody = document.getElementById("printTableBody");
+        tbody.innerHTML = "";
+
+        const fields = [
+            { key: "bilirubin_total", label: "BILIRUBIN TOTAL", range: "Upto 1.2 mg/dl (Infants: 0.2-8.0 mg/dl)", method:"---" },
+            { key: "bilirubin_direct", label: "BILIRUBIN DIRECT", range: "0-0.4 mg/dl", method:"Diazo Modified" },
+            { key: "bilirubin_indirect", label: "BILIRUBIN INDIRECT", range: "0.0-1.1 mg/dl", method:"---" },
+            { key: "ast_sgot", label: "AST/SGOT", range: "0-37 U/L (M) 0-31 U/L (F)", method:"IFCC" },
+            { key: "alt_sgpt", label: "ALT/SGPT", range: "0-49 U/L (M) 0-31 U/L (F)", method:"IFCC" },
+            { key: "alk_phos", label: "ALKALINE PHOSPHATASE", range: "25-140 IU/L (Adults)", method:"IFCC" },
+            { key: "total_protein", label: "TOTAL PROTEIN", range: "6.0-8.0 gm/dl (>2 yrs)", method:"Biuret" },
+            { key: "albumin", label: "ALBUMIN", range: "3.8-5.5 gm/dl (>18 yrs)", method:"BCG" },
+            { key: "globulin", label: "GLOBULIN", range: "2.5-3.5 gm/dl", method:"Calculated" },
+            { key: "ag_ratio", label: "A/G RATIO", range: "1.0-2.3", method:"Calculated" },
+        ];
+
+        fields.forEach(f => {
+            const tr = document.createElement("tr");
+            const val = reports[patientId]?.[f.key] || "";
+            tr.innerHTML = `<td>${f.label}</td><td>${val}</td><td>${f.range}</td><td>${f.method}</td>`;
+            tbody.appendChild(tr);
+        });
+
+        printModalBS.show();
+    });
+});
+</script>
+
+</body>
+</html>

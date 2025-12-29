@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Account Management - Medical Service Management System</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css"
+  />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Custom style for header with button */
+    .header-with-button {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html"
+        ><img src="logo.png" alt="Hospital Icon" class="me-2" style="width: 2em; height: 1em;">
+</i>Mediplus Health Care</a
+      >
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2 sidebar">
+        <nav class="nav flex-column">
+          <a class="nav-link" href="index.html"
+            ><i class="bi bi-speedometer2 me-2"></i>Dashboard</a
+          >
+          <a class="nav-link" href="agents.html"
+            ><i class="bi bi-person-badge me-2"></i>Agents</a
+          >
+          <a class="nav-link" href="doctors.html"
+            ><i class="bi bi-heart-pulse me-2"></i>Doctors</a
+          >
+          <a class="nav-link" href="patients.html"
+            ><i class="bi bi-people me-2"></i>Patients</a
+          >
+          <a class="nav-link active" href="account.html"
+            ><i class="bi bi-file-medical me-2"></i>Services Account</a
+          >
+          <a class="nav-link" href="invoices.html"
+            ><i class="bi bi-receipt me-2"></i>Invoices</a
+          >
+          <a class="nav-link" href="billing.html"
+            ><i class="bi bi-calculator me-2"></i>Billing</a
+          >
+          <a class="nav-link" href="patientDues.html"><i class="bi bi-exclamation-circle me-2"></i>Patient Dues</a>
+           <a class="nav-link" href="report.html"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
+           <a class="nav-link" href="doctorRevisit.html"><i class="bi bi-calendar-check me-2"></i>Doctor Revisit</a>
+        </nav>
+      </div>
+      
+
+      <div class="col-md-10 main-content p-4">
+       
+
+<!-- Patient Due Table -->
+<div class="card mb-4" id="patientDueCard" style="display:none;">
+  <div class="card-header bg-danger text-white">
+    <strong>Patient Due List</strong>
+  </div>
+
+  <div class="card-body p-0">
+    <table class="table table-bordered mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Patient ID</th>
+          <th>Patient Name</th>
+          <th>Agent ID</th>
+          <th>Agent Name</th>
+          <th>Due Amount (₹)</th>
+        </tr>
+      </thead>
+
+      <tbody id="patientDueBody"></tbody>
+
+      <tfoot>
+        <tr>
+          <th colspan="4" class="text-end">Total Due</th>
+          <th id="patientDueTotal">₹0.00</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+        <!-- Account Management Form (hidden initially) -->
+        <div class="card p-4 mb-4" id="invoiceForm" style="display:none;">
+          <h2><i class="bi bi-file-medical me-2"></i>Account Management</h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Patient ID</label>
+              <input
+                type="text"
+                class="form-control"
+                id="patientId"
+                oninput="populatePatientDetails()"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Patient Name</label>
+              <input type="text" class="form-control" id="patientName" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Doctor ID</label>
+              <input
+                type="text"
+                class="form-control"
+                id="doctorId"
+                oninput="populateDoctorDetails()"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Doctor Name</label>
+              <input type="text" class="form-control" id="doctorName" />
+            </div>
+            <div class="col-md-6">
+  <label class="form-label">Agent ID</label>
+  <input type="text" class="form-control" id="agentId" name="id" oninput="populateAgentDetails()">
+
+
+</div>
+             
+          
+            <div class="col-md-6">
+              <label class="form-label">Agent Name</label>
+              <input type="text" class="form-control" id="agentName" />
+            </div>
+            <div class="col-md-6">
+  <label class="form-label">Agent Commission (%)</label>
+  <input type="text" class="form-control" id="agentCommission" readonly />
+</div>
+
+            <div class="col-md-6">
+              <label class="form-label">Visit Date</label>
+              <input type="date" class="form-control" id="visitDate" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Select Tests</label>
+              <div id="testDropdown">
+                <div>
+                  <input
+                    type="checkbox"
+                    value="Blood Test"
+                    data-price="50"
+                  /> Blood Test - ₹50
+                </div>
+                <div>
+                  <input type="checkbox" value="X-Ray" data-price="100" /> X-Ray
+                  - ₹100
+                </div>
+                <div>
+                  <input type="checkbox" value="MRI" data-price="500" /> MRI - ₹500
+                </div>
+                <div>
+                  <input
+                    type="checkbox"
+                    value="Urine Test"
+                    data-price="30"
+                  /> Urine Test - ₹30
+                </div>
+                <div>
+                  <input type="checkbox" value="ECG" data-price="70" /> ECG - ₹70
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Total Price (₹)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="totalPrice"
+                readonly
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Discount (%)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="discount"
+                value="0"
+                onchange="updatePayment()"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Payment Made (₹)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="paymentMade"
+                value="0"
+                onchange="updatePayment()"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Total Bill After Discount (₹)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="totalAfterDiscount"
+                readonly
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Due Amount (₹)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="dueAmount"
+                readonly
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Agent Commission (₹)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="commissionmount"
+                readonly
+              />
+            </div>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-success" onclick="saveInvoice()">
+              <i class="bi bi-save me-1"></i> Save Invoice
+            </button>
+            <button class="btn btn-secondary" onclick="hideInvoiceForm()">
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Header with Add New Test button -->
+        <div class="header-with-button">
+          <h3 class="mb-0">Lab Test Details</h3>
+          <button
+            class="btn btn-primary"
+            id="addTestBtn"
+            onclick="showInvoiceForm()"
+          >
+            <i class="bi bi-plus-circle me-1"></i> Add New Test
+          </button>
+        </div>
+
+        <!-- Saved invoices table -->
+        <table class="table table-bordered mt-0" id="invoiceTable">
+          <thead>
+            <tr>
+              <th>Patient Name</th>
+              <th>Doctor Name</th>
+              <th>Agent Name</th>
+              <th>Tests</th>
+              <th>Total (₹)</th>
+              <th>Discount (₹)</th>
+              <th>Payment (₹)</th>
+              <th>Due (₹)</th>
+              <th>Agent Commission (₹)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceTableBody"></tbody>
+          <tfoot>
+            <tr>
+              <th colspan="4" class="text-end">Total Sum:</th>
+              <th id="totalSum">₹0.00</th>
+              <th id="discountSum">₹0.00</th>
+              <th id="paymentSum">₹0.00</th>
+              <th id="dueSum">₹0.00</th>
+              <th id="commissionSum">₹0.00</th>
+              <th></th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    // Dummy data
+    const patients = [
+      { id: "P001", name: "John Doe" },
+      { id: "P002", name: "Jane Smith" },
+    ];
+    const doctors = [
+      { id: "D001", name: "Dr. Strange" },
+      { id: "D002", name: "Dr. House" },
+    ];
+    const agents = JSON.parse(localStorage.getItem('agents') || '[]');
+    let currentAgentCommissionPercent = 0;
+
+
+
+    // Show/Hide form
+    function showInvoiceForm() {
+      document.getElementById("invoiceForm").style.display = "block";
+      document.getElementById("addTestBtn").style.display = "none";
+      document.getElementById("invoiceTable").style.display = "none";
+    }
+
+    function hideInvoiceForm() {
+      document.getElementById("invoiceForm").style.display = "none";
+      document.getElementById("addTestBtn").style.display = "inline-block";
+      document.getElementById("invoiceTable").style.display = "table";
+    }
+
+    // Populate details
+    function populatePatientDetails() {
+      const id = document.getElementById("patientId").value;
+      const patient = patients.find((p) => p.id === id);
+      document.getElementById("patientName").value = patient ? patient.name : "";
+      updateSumTotals();
+    }
+    function populateDoctorDetails() {
+      const id = document.getElementById("doctorId").value;
+      const doctor = doctors.find((d) => d.id === id);
+      document.getElementById("doctorName").value = doctor ? doctor.name : "";
+    }
+ function populateAgentDetails() {
+  const agentId = document.getElementById("agentId").value.trim();
+  const agentNameField = document.getElementById("agentName");
+  const agentCommissionField = document.getElementById("agentCommission");
+
+  const agents = JSON.parse(localStorage.getItem("agents") || "[]");
+
+  if (!agentId) {
+    agentNameField.value = "";
+    agentCommissionField.value = "";
+    document.getElementById("commissionmount").value = "";
+    return;
+  }
+
+  const agent = agents.find(a => a.id.toString() === agentId);
+
+  if (agent) {
+    agentNameField.value = agent.name || "";
+    agentCommissionField.value = agent.commission || 0;
+
+    updateAgentCommissionAmount(); // ✅ IMPORTANT
+  }
+}
+
+function updateAgentCommissionAmount() {
+  const totalAfterDiscount = parseFloat(
+    document.getElementById("totalAfterDiscount").value || 0
+  );
+
+  const agentCommissionPercent = parseFloat(
+    document.getElementById("agentCommission").value || 0
+  );
+
+  const commissionAmount =
+    (totalAfterDiscount * agentCommissionPercent) / 100;
+
+  document.getElementById("commissionmount").value =
+    commissionAmount.toFixed(2);
+}
+
+
+
+
+
+    // Price calculation
+    function calculatePrice() {
+      const checkboxes = document.querySelectorAll(
+        '#testDropdown input[type="checkbox"]:checked'
+      );
+      let total = 0;
+      checkboxes.forEach((cb) => (total += parseFloat(cb.dataset.price)));
+      document.getElementById("totalPrice").value = total.toFixed(2);
+      updatePayment();
+      updateAgentCommissionAmount();
+      updateSumTotals();
+    }
+    document
+      .querySelectorAll('#testDropdown input[type="checkbox"]')
+      .forEach((cb) => {
+        cb.addEventListener("change", calculatePrice);
+      });
+
+   function updatePayment() {
+  const total = parseFloat(document.getElementById("totalPrice").value || 0);
+  const discount = parseFloat(document.getElementById("discount").value || 0);
+  const payment = parseFloat(document.getElementById("paymentMade").value || 0);
+
+  const totalAfterDiscount = total - (total * discount) / 100;
+  const due = totalAfterDiscount - payment;
+
+  document.getElementById("totalAfterDiscount").value =
+    totalAfterDiscount.toFixed(2);
+  document.getElementById("dueAmount").value = due.toFixed(2);
+
+  updateAgentCommissionAmount(); // ✅ VERY IMPORTANT
+  updateSumTotals();
+}
+
+
+    function saveInvoice() {
+
+  updateAgentCommissionAmount(); // ✅ FORCE recalculation
+
+  const tests = Array.from(
+    document.querySelectorAll('#testDropdown input[type="checkbox"]:checked')
+  )
+    .map((cb) => cb.value)
+    .join(", ");
+
+  const invoice = {
+    patientId: document.getElementById("patientId").value,
+  patientName: document.getElementById("patientName").value,
+  agentId: document.getElementById("agentId").value,
+  agentName: document.getElementById("agentName").value,
+  doctorName: document.getElementById("doctorName").value,
+    visitDate: document.getElementById("visitDate").value,
+    tests: tests,
+    total: document.getElementById("totalPrice").value,
+    discount: document.getElementById("discount").value,
+    payment: document.getElementById("paymentMade").value,
+    due: document.getElementById("dueAmount").value,
+    commission: document.getElementById("commissionmount").value // ✅ NOW CORRECT
+  };
+
+  let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  invoices.push(invoice);
+  localStorage.setItem("invoices", JSON.stringify(invoices));
+
+  alert("Invoice saved successfully!");
+  hideInvoiceForm();
+  renderInvoices();
+}
+
+
+    function deleteInvoice(index) {
+      let invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      if (
+        confirm(
+          `Are you sure you want to delete invoice for ${invoices[index].patientName}?`
+        )
+      ) {
+        invoices.splice(index, 1);
+        localStorage.setItem("invoices", JSON.stringify(invoices));
+        renderInvoices();
+      }
+    }
+
+    function renderInvoices() {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      const tbody = document.getElementById("invoiceTableBody");
+
+      tbody.innerHTML = invoices
+        .map((inv, index) => {
+          return `
+            <tr>
+                <td>${inv.patientName}</td>
+                <td>${inv.doctorName}</td>
+                <td>${inv.agentName}</td>
+                <td>${inv.tests}</td>
+                <td>₹${inv.total}</td>
+                <td>₹${(inv.total * inv.discount / 100).toFixed(2)}</td>
+                <td>₹${inv.payment}</td>
+                <td>₹${inv.due}</td>
+                 <td>₹${parseFloat(inv.commission || 0).toFixed(2)}</td> <!-- ✅ -->
+                <td>
+                    <button class="btn btn-info btn-sm me-2" onclick="printInvoice(${index})">
+                        <i class="bi bi-eye me-1"></i> View & Print
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteInvoice(${index})">
+                        <i class="bi bi-trash me-1"></i> Delete
+                    </button>
+                </td>
+            </tr>
+            `;
+        })
+        .join("");
+
+      updateSumTotals();
+    }
+
+    function updateSumTotals() {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+  let totalSum = 0;
+  let paymentSum = 0;
+  let dueSum = 0;
+  let discountAmountSum = 0;
+  let commissionSum = 0; // ✅
+
+  invoices.forEach((inv) => {
+    const total = parseFloat(inv.total || 0);
+    const discount = parseFloat(inv.discount || 0);
+
+    totalSum += total;
+    paymentSum += parseFloat(inv.payment || 0);
+    dueSum += parseFloat(inv.due || 0);
+    discountAmountSum += (total * discount) / 100;
+
+    commissionSum += parseFloat(inv.commission || 0); // ✅
+  });
+
+  document.getElementById("totalSum").innerText = `₹${totalSum.toFixed(2)}`;
+  document.getElementById("paymentSum").innerText = `₹${paymentSum.toFixed(2)}`;
+  document.getElementById("dueSum").innerText = `₹${dueSum.toFixed(2)}`;
+  document.getElementById("discountSum").innerText = `₹${discountAmountSum.toFixed(2)}`;
+  document.getElementById("commissionSum").innerText = `₹${commissionSum.toFixed(2)}`;
+}
+
+
+    function printInvoice(index) {
+      const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+      const inv = invoices[index];
+
+      const printContainer = document.createElement("div");
+
+      let testsRows = "";
+      const testNames = inv.tests.split(",").map((t) => t.trim());
+      const priceMap = {
+        "Blood Test": 50,
+        "X-Ray": 100,
+        MRI: 500,
+        "Urine Test": 30,
+        ECG: 70,
+      };
+      testNames.forEach((testName) => {
+        const price = priceMap[testName] || 0;
+        testsRows += `
+                <tr>
+                    <td style="padding:5px;">${testName}</td>
+                    <td style="padding:5px; text-align:right;">₹${price.toFixed(2)}</td>
+                </tr>
+            `;
+      });
+
+      printContainer.innerHTML = `
+            <div class="container mt-4">
+                 <!-- Header -->
+        <div style="text-align:center; margin-bottom:5px;">
+            <img src="logo.png" alt="Clinic Logo" style="height:70px;" />
+            <h2 style="margin:0; font-size:18px; font-weight:bold;">Mediplus Health Care</h2>
+            <h5 style="margin:0; font-size:12px;">24/A Sriram Siromoni Road (Satimar Goli), Berhampore</h5>
+            <h6 style="margin:0; font-size:11px;">Phone: 9800958006 / 9800758005 | Email: mediplus.health@gmail.com</h6>
+            <hr style="border:1px solid #000; margin:5px 0;" />
+        </div>
+                <hr />
+
+                <div style="display:flex; flex-wrap:wrap; margin-bottom:10px;">
+                    <div style="width:50%;"><strong>Patient Name:</strong> ${
+                      inv.patientName
+                    }</div>
+                    <div style="width:50%;"><strong>Doctor Name:</strong> ${
+                      inv.doctorName
+                    }</div>
+                    <div style="width:50%;"><strong>Agent Name:</strong> ${
+                      inv.agentName
+                    }</div>
+                    <div style="width:50%;"><strong>Visit Date:</strong> ${
+                      inv.visitDate || new Date().toLocaleDateString()
+                    }</div>
+                </div>
+
+                <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+                    <thead>
+                        <tr>
+                            <th style="border:1px solid #000; padding:5px; text-align:left;">Test Name</th>
+                            <th style="border:1px solid #000; padding:5px; text-align:right;">Price (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${testsRows}
+                    </tbody>
+                </table>
+
+                <div style="text-align:right; margin-bottom:10px;">
+                    <strong>Total:</strong> ₹${parseFloat(inv.total).toFixed(2)}<br/>
+                    <strong>Discount:</strong> ₹${((inv.total * inv.discount) / 100).toFixed(
+                      2
+                    )}<br/>
+                    <strong>Payment:</strong> ₹${parseFloat(inv.payment).toFixed(2)}<br/>
+                    <strong>Due:</strong> ₹${parseFloat(inv.due).toFixed(2)}<br/>
+                </div>
+
+                <div style="text-align:center; font-size:10px;">
+                    Thank you for choosing Mediplus Health Care!<br />
+                    Please take care of your health.
+                </div>
+            </div>
+        `;
+
+      const newWindow = window.open("", "_blank", "width=600,height=700");
+      newWindow.document.write(`
+            <html>
+            <head>
+              <title>Invoice for ${inv.patientName}</title>
+            </head>
+            <body>${printContainer.innerHTML}</body>
+            </html>
+        `);
+      newWindow.document.close();
+      newWindow.focus();
+      newWindow.print();
+      // newWindow.close(); // optional: close after print
+    }
+  function showDoctorDuesSame() {
+  const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+  const tbody = document.querySelector("#patientDueModal #patientDueBody");
+  const totalField = document.querySelector("#patientDueModal #patientDueTotal");
+
+  tbody.innerHTML = "";
+  let totalDue = 0;
+
+  const dueInvoices = invoices.filter(inv => parseFloat(inv.due) > 0);
+
+  if (dueInvoices.length === 0) {
+    alert("No pending patient dues");
+    return;
+  }
+
+  dueInvoices.forEach(inv => {
+    totalDue += parseFloat(inv.due);
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${inv.patientId || "-"}</td>
+        <td>${inv.patientName}</td>
+        <td>${inv.agentId || "-"}</td>
+        <td>${inv.agentName}</td>
+        <td class="text-danger fw-bold">₹${parseFloat(inv.due).toFixed(2)}</td>
+      </tr>
+    `;
+  });
+
+  totalField.innerText = `₹${totalDue.toFixed(2)}`;
+
+  // Show Bootstrap modal
+  const patientDueModal = new bootstrap.Modal(document.getElementById('patientDueModal'));
+  patientDueModal.show();
+}
+function showDoctorRevisitAlert() {
+    const tbody = document.getElementById("doctorRevisitTableBody");
+    tbody.innerHTML = "";
+
+    // 5 static data entries
+    const data = [
+        {name: "John Doe", contact: "+911234567890", lastVisit: "2025-12-01", revisit: "2025-12-20", doctor: "Dr. Smith"},
+        {name: "Jane Roe", contact: "+911234567891", lastVisit: "2025-12-03", revisit: "2025-12-22", doctor: "Dr. Patel"},
+        {name: "Alice Johnson", contact: "+911234567892", lastVisit: "2025-12-05", revisit: "2025-12-25", doctor: "Dr. Kumar"},
+        {name: "Bob Lee", contact: "+911234567893", lastVisit: "2025-12-07", revisit: "2025-12-28", doctor: "Dr. Sharma"},
+        {name: "Charlie Brown", contact: "+911234567894", lastVisit: "2025-12-10", revisit: "2025-12-30", doctor: "Dr. Reddy"},
+    ];
+
+    data.forEach(d => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${d.name}</td>
+                <td>${d.contact}</td>
+                <td>${d.lastVisit}</td>
+                <td>${d.revisit}</td>
+                <td>${d.doctor}</td>
+                <td class="text-center">
+                    <a href="https://wa.me/${d.contact.replace('+','')}" target="_blank" class="me-2 text-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    <a href="mailto:${d.name.replace(' ','.')}@gmail.com" class="me-2 text-danger" title="Gmail"><i class="bi bi-envelope"></i></a>
+                    <a href="sms:${d.contact}" class="me-2 text-primary" title="Message"><i class="bi bi-chat-dots"></i></a>
+                    <a href="tel:${d.contact}" class="text-dark" title="Call"><i class="bi bi-telephone"></i></a>
+                </td>
+            </tr>
+        `;
+    });
+
+    new bootstrap.Modal(document.getElementById("doctorRevisitModal")).show();
+}
+
+
+    // On page load, render saved invoices
+    document.addEventListener("DOMContentLoaded", () => {
+      renderInvoices();
+    });
+  </script>
+  <!-- Patient Due Modal -->
+<div class="modal fade" id="patientDueModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Patient Due List
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-0">
+        <table class="table table-bordered mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Patient ID</th>
+              <th>Patient Name</th>
+              <th>Agent ID</th>
+              <th>Agent Name</th>
+              <th>Due Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="patientDueBody"></tbody>
+          <tfoot>
+            <tr>
+              <th colspan="4" class="text-end">Total Due</th>
+              <th id="patientDueTotal">₹0.00</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 🔴 DOCTOR REVISIT MODAL -->
+<div class="modal fade" id="doctorRevisitModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+            <i class="bi bi-bell me-2"></i>Doctor Revisit Alert
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-bordered table-hover">
+            <thead class="table-warning">
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Contact Number</th>
+                    <th>Last Visit Date</th>
+                    <th>Date of Revisit</th>
+                    <th>Doctor Name</th>
+                    <th>Action</th> <!-- Added Action column -->
+                </tr>
+            </thead>
+            <tbody id="doctorRevisitTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

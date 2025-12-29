@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Management - Medical Service Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="logo.png" alt="Hospital Icon" class="me-2" style="width: 2em; height: 1em;">
+                Mediplus Health Care
+            </a>
+
+            <!-- 🔴 Dues Badge -->
+            
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="navbar-text text-white">
+                            <i class="bi bi-person-circle me-2"></i>Admin
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar">
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                    <a class="nav-link active" href="agents.html"><i class="bi bi-person-badge me-2"></i>Agents</a>
+                    <a class="nav-link" href="doctors.html"><i class="bi bi-heart-pulse me-2"></i>Doctors</a>
+                    <a class="nav-link" href="patients.html"><i class="bi bi-people me-2"></i>Patients</a>
+                    <a class="nav-link" href="account.html"><i class="bi bi-file-medical me-2"></i>Services Account</a>
+                    <a class="nav-link" href="invoices.html"><i class="bi bi-receipt me-2"></i>Invoices</a>
+                    <a class="nav-link" href="billing.html"><i class="bi bi-calculator me-2"></i>Billing</a>
+                    <a class="nav-link" href="patientDues.html"><i class="bi bi-exclamation-circle me-2"></i>Patient Dues</a>
+                     <a class="nav-link" href="report.html"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
+                     <a class="nav-link" href="doctorRevisit.html"><i class="bi bi-calendar-check me-2"></i>Doctor Revisit</a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 main-content p-4">
+                
+
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    
+                    <h2><i class="bi bi-person-badge me-2"></i>Agent Management</h2>
+
+                    <button class="btn btn-primary" onclick="showForm()">
+                        
+                        <i class="bi bi-plus-circle me-2"></i>Add New Agent
+                    </button>
+                </div>
+
+               
+
+
+
+                <!-- Form Card -->
+                <div class="card mb-4" id="agentForm" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="mb-0" id="formTitle">Add New Agent</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="agentFormElement" onsubmit="saveAgent(event)">
+                            <input type="hidden" id="agentId" name="id">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label required-field">Name</label>
+                                    <input type="text" class="form-control" id="agentName" name="name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label required-field">Date of Registration</label>
+                                    <input type="date" class="form-control" id="agentDor" name="dor" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">ID Proof</label>
+                                    <input type="text" class="form-control" id="agentIdProof" name="id_proof">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label required-field">Mobile Number</label>
+                                    <input type="tel" class="form-control" id="agentMobile" name="mobile_number" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email ID</label>
+                                    <input type="email" class="form-control" id="agentEmail" name="email_id">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Emergency Contact</label>
+                                    <input type="tel" class="form-control" id="agentEmergency" name="emergency_contact">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Agent Commission (%)</label>
+                                    <input type="number" class="form-control" id="agentCommission" name="commission" min="0" max="100" step="0.01">
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Address</label>
+                                    <textarea class="form-control" rows="3" id="agentAddress" name="address"></textarea>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save me-2"></i>Save
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="hideForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Agents Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">All Agents</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>DOR</th>
+                                        <th>Mobile</th>
+                                        <th>Email</th>
+                                        <th>Emergency Contact</th>
+                                        <th>Commission (%)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agentsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <!-- Modal for Patients under Agent -->
+    <div class="modal fade" id="agentPatientsModal" tabindex="-1" aria-labelledby="agentPatientsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="agentPatientsModalLabel">Patients under Agent</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Patient Name</th>
+                  <th>Age</th>
+                  <th>Mobile</th>
+                  <th>Email</th>
+                  <th>Emergency Contact</th>
+                  <th>Address</th>
+                </tr>
+              </thead>
+              <tbody id="agentPatientsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ==============================
+   LOCAL STORAGE HELPER
+============================== */
+const Storage = {
+    get: (key) => JSON.parse(localStorage.getItem(key) || "[]"),
+    add: (key, obj) => {
+        const arr = Storage.get(key);
+        obj.id = arr.length ? arr[arr.length-1].id + 1 : 1;
+        if(obj.commission===undefined || obj.commission===null) obj.commission=0;
+        arr.push(obj);
+        localStorage.setItem(key, JSON.stringify(arr));
+    },
+    update: (key, id, obj) => {
+        const arr = Storage.get(key);
+        const index = arr.findIndex(a=>a.id===id);
+        if(index!==-1){
+            if(obj.commission===undefined || obj.commission===null) obj.commission=0;
+            arr[index] = {...arr[index], ...obj};
+            localStorage.setItem(key, JSON.stringify(arr));
+        }
+    },
+    delete: (key, id) => {
+        const arr = Storage.get(key).filter(a=>a.id!==id);
+        localStorage.setItem(key, JSON.stringify(arr));
+    },
+    findById: (key, id) => Storage.get(key).find(a=>a.id===id)
+};
+
+
+
+/* ==============================
+   AGENT MANAGEMENT
+============================== */
+let editingAgentId = null;
+
+function loadAgents(){
+    const agents = Storage.get('agents');
+    const tbody = document.getElementById('agentsTableBody');
+    if(!agents.length) {
+        tbody.innerHTML='<tr><td colspan="8" class="text-center text-muted">No agents found. Click "Add New Agent" to create one.</td></tr>';
+        return;
+    }
+    tbody.innerHTML=agents.map(agent=>`
+        <tr>
+            <td>${agent.id}</td>
+            <td>${agent.name}</td>
+            <td>${agent.dor}</td>
+            <td>${agent.mobile_number}</td>
+            <td>${agent.email_id||'-'}</td>
+            <td>${agent.emergency_contact||'-'}</td>
+            <td>${agent.commission!=null?agent.commission:0}</td>
+            <td>
+                <button class="btn btn-sm btn-info" onclick="showAgentPatients(${agent.id},'${agent.name}')"><i class="bi bi-people"></i></button>
+                <button class="btn btn-sm btn-primary" onclick="editAgent(${agent.id})"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="deleteAgent(${agent.id})"><i class="bi bi-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function showForm(){
+    document.getElementById('agentForm').style.display='block';
+    document.getElementById('formTitle').textContent='Add New Agent';
+    editingAgentId=null;
+    document.getElementById('agentFormElement').reset();
+}
+function hideForm(){
+    document.getElementById('agentForm').style.display='none';
+    editingAgentId=null;
+    document.getElementById('agentFormElement').reset();
+}
+function saveAgent(e){
+    e.preventDefault();
+    const formData=new FormData(e.target);
+    const agentData={
+        name:formData.get('name'),
+        dor:formData.get('dor'),
+        id_proof:formData.get('id_proof'),
+        mobile_number:formData.get('mobile_number'),
+        email_id:formData.get('email_id'),
+        emergency_contact:formData.get('emergency_contact'),
+        commission: parseFloat(formData.get('commission'))||0,
+        address:formData.get('address')
+    };
+    if(editingAgentId){
+        Storage.update('agents', editingAgentId, agentData);
+        alert('Agent updated successfully');
+    } else{
+        Storage.add('agents', agentData);
+        alert('Agent created successfully');
+    }
+    loadAgents();
+    hideForm();
+}
+/* ---------------- DUES FUNCTION (ADDED ONLY) ---------------- */
+/* ---------------- DUES FUNCTION (ADDED ONLY) ---------------- */
+function openDueModal() {
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+    const patients = JSON.parse(localStorage.getItem("patients") || "[]");
+    const agents = JSON.parse(localStorage.getItem("agents") || "[]");
+    const tbody = document.getElementById("dueTableBody");
+    tbody.innerHTML = "";
+
+    let hasDue = false;
+
+    invoices.forEach(inv => {
+        const total = Number(inv.total_amount || 0);
+        const paid = Number(inv.paid_amount || 0);
+        const due = total - paid;
+
+        if (due > 0) {
+            hasDue = true;
+            const patient = patients.find(p => p.id === inv.patient_id);
+            const agent = patient ? agents.find(a => a.id === patient.agent_reference) : null;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${patient?.id || '-'}</td>
+                    <td>${patient?.name || '-'}</td>
+                    <td>${agent?.id || '-'}</td>
+                    <td>${agent?.name || '-'}</td>
+                    <td class="text-danger fw-bold">₹${due.toFixed(2)}</td>
+                </tr>`;
+        }
+    });
+
+    if (!hasDue) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-success">
+                    🎉 No pending dues
+                </td>
+            </tr>`;
+    }
+
+    new bootstrap.Modal(document.getElementById("dueModal")).show();
+}
+function editAgent(id){
+    const agent = Storage.findById('agents', id);
+    if(agent){
+        editingAgentId=id;
+        document.getElementById('agentId').value=agent.id;
+        document.getElementById('agentName').value=agent.name;
+        document.getElementById('agentDor').value=agent.dor;
+        document.getElementById('agentIdProof').value=agent.id_proof||'';
+        document.getElementById('agentMobile').value=agent.mobile_number;
+        document.getElementById('agentEmail').value=agent.email_id||'';
+        document.getElementById('agentEmergency').value=agent.emergency_contact||'';
+        document.getElementById('agentCommission').value=agent.commission||0;
+        document.getElementById('agentAddress').value=agent.address||'';
+        document.getElementById('formTitle').textContent='Edit Agent';
+        document.getElementById('agentForm').style.display='block';
+    }
+}
+function deleteAgent(id){
+    if(confirm('Are you sure you want to delete this agent?')){
+        Storage.delete('agents', id);
+        loadAgents();
+        alert('Agent deleted successfully');
+    }
+}
+
+/* ==============================
+   PATIENTS UNDER AGENT
+============================== */
+function showAgentPatients(agentId, agentName){
+    const patients = (Storage.get('patients')||[]).filter(p=>p.agent_reference==agentId);
+    const tbody = document.getElementById('agentPatientsTableBody');
+    if(!patients.length){
+        tbody.innerHTML='<tr><td colspan="7" class="text-center text-muted">No patients found under this agent.</td></tr>';
+    } else{
+        tbody.innerHTML=patients.map(p=>`
+            <tr>
+                <td>${p.id}</td>
+                <td>${p.name}</td>
+                <td>${p.age||'-'}</td>
+                <td>${p.mobile_number}</td>
+                <td>${p.email_id||'-'}</td>
+                <td>${p.emergency_contact||'-'}</td>
+                <td>${p.address||'-'}</td>
+            </tr>
+        `).join('');
+    }
+    document.getElementById('agentPatientsModalLabel').innerText=`Patients under Agent: ${agentName}`;
+    new bootstrap.Modal(document.getElementById('agentPatientsModal')).show();
+}
+
+/* ==============================
+   LOAD DUES
+============================== */
+function loadPatientDues() {
+    const patients = Storage.get('patients');
+    const invoices = Storage.get('invoices');
+    const agents = Storage.get('agents');
+    const tbody = document.getElementById('doctorDuesSameTableBody'); // updated
+
+    let totalDues = 0;
+
+    if(!invoices.length){
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No pending dues.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = invoices.map(inv => {
+        const total = Number(inv.total_amount) || 0;
+        const paid = Number(inv.paid_amount) || 0;
+        const due = total - paid;
+        if(due <= 0) return '';
+
+        const patient = patients.find(p => p.id == inv.patient_id);
+        if(!patient) return '';
+        const agent = agents.find(a => a.id == patient.agent_reference);
+
+        totalDues += due;
+
+        return `
+            <tr>
+                <td>${patient.id}</td>
+                <td>${patient.name}</td>
+                <td>${agent ? agent.id : '-'}</td>
+                <td>${agent ? agent.name : '-'}</td>
+                <td>₹${total.toFixed(2)}</td>
+                <td>₹0.00</td>
+                <td>₹${paid.toFixed(2)}</td>
+                <td class="fw-bold text-danger">₹${due.toFixed(2)}</td>
+            </tr>
+        `;
+    }).join('');
+
+    if(!tbody.innerHTML) tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No pending dues.</td></tr>';
+
+    document.getElementById('totalDues').innerText = `₹${totalDues.toFixed(2)}`;
+}
+
+
+/* ==============================
+   INITIAL LOAD
+============================== */
+document.addEventListener('DOMContentLoaded', ()=>{
+    loadAgents();
+    // loadPatientDues();  <-- REMOVE or comment out this line
+});
+
+
+/* ---------------- SAME DUES LOGIC AS PATIENT PAGE (ADD ONLY) ---------------- */
+function showDoctorDuesSame() {
+    const invoices = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+    const tbody = document.getElementById("doctorDuesSameTableBody");
+    const totalCell = document.getElementById("doctorDuesSameTotal");
+
+    tbody.innerHTML = "";
+    let totalDues = 0;
+
+    // Price map for test calculation
+    const priceMap = { "Blood Test":50, "X-Ray":100, "MRI":500, "Urine Test":30, "ECG":70 };
+
+    const dueInvoices = invoices.filter(inv => Number(inv.due || 0) > 0);
+
+    if (!dueInvoices.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center text-success">
+                    🎉 No dues found
+                </td>
+            </tr>`;
+        totalCell.innerText = "₹0.00";
+    } else {
+        dueInvoices.forEach(inv => {
+            const dueAmount = Number(inv.due || 0);
+            const paymentMade = Number(inv.payment || 0);
+            const totalAmount = Number(inv.total || 0);
+
+            // Calculate test amount
+            let testAmount = 0;
+            (inv.tests || '').split(',').map(t => t.trim()).forEach(testName => {
+                testAmount += priceMap[testName] || 0;
+            });
+
+            totalDues += dueAmount;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${inv.patientId || '-'}</td>
+                    <td>${inv.patientName || '-'}</td>
+                    <td>${inv.agentId || '-'}</td>
+                    <td>${inv.agentName || '-'}</td>
+                    
+                    <td>₹${totalAmount.toFixed(2)}</td>
+                   <td>₹${paymentMade.toFixed(2)}</td>
+                    <td class="fw-bold text-danger">₹${dueAmount.toFixed(2)}</td>
+                </tr>`;
+        });
+
+        totalCell.innerText = `₹${totalDues.toFixed(2)}`;
+    }
+
+    new bootstrap.Modal(document.getElementById("doctorDuesSameModal")).show();
+}
+
+function showDoctorRevisitAlert() {
+    const tbody = document.getElementById("doctorRevisitTableBody");
+    tbody.innerHTML = "";
+
+    // 5 static data entries
+    const data = [
+        {name: "John Doe", contact: "+911234567890", lastVisit: "2025-12-01", revisit: "2025-12-20", doctor: "Dr. Smith"},
+        {name: "Jane Roe", contact: "+911234567891", lastVisit: "2025-12-03", revisit: "2025-12-22", doctor: "Dr. Patel"},
+        {name: "Alice Johnson", contact: "+911234567892", lastVisit: "2025-12-05", revisit: "2025-12-25", doctor: "Dr. Kumar"},
+        {name: "Bob Lee", contact: "+911234567893", lastVisit: "2025-12-07", revisit: "2025-12-28", doctor: "Dr. Sharma"},
+        {name: "Charlie Brown", contact: "+911234567894", lastVisit: "2025-12-10", revisit: "2025-12-30", doctor: "Dr. Reddy"},
+    ];
+
+    data.forEach(d => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${d.name}</td>
+                <td>${d.contact}</td>
+                <td>${d.lastVisit}</td>
+                <td>${d.revisit}</td>
+                <td>${d.doctor}</td>
+                <td class="text-center">
+                    <a href="https://wa.me/${d.contact.replace('+','')}" target="_blank" class="me-2 text-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    <a href="mailto:${d.name.replace(' ','.')}@gmail.com" class="me-2 text-danger" title="Gmail"><i class="bi bi-envelope"></i></a>
+                    <a href="sms:${d.contact}" class="me-2 text-primary" title="Message"><i class="bi bi-chat-dots"></i></a>
+                    <a href="tel:${d.contact}" class="text-dark" title="Call"><i class="bi bi-telephone"></i></a>
+                </td>
+            </tr>
+        `;
+    });
+
+    new bootstrap.Modal(document.getElementById("doctorRevisitModal")).show();
+}
+
+</script>
+<!-- 🔴 DOCTOR / PATIENT DUES MODAL (ADD ONLY) -->
+<div class="modal fade" id="doctorDuesSameModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+            <i class="bi bi-exclamation-triangle me-2"></i>Patient Dues
+        </h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+         <table class="table table-bordered table-hover">
+    <thead class="table-danger">
+        <tr>
+            <th>Patient ID</th>
+            <th>Patient Name</th>
+            <th>Agent ID</th>
+            <th>Agent Name</th>
+            <th>Total (₹)</th>
+            <th>Payment (₹)</th>
+            <th>Due (₹)</th>
+        </tr>
+    </thead>
+
+    <tbody id="doctorDuesSameTableBody"></tbody>
+
+    <tfoot class="table-danger">
+        <tr>
+            <th colspan="6" class="text-end">Total Dues:</th>
+            <th id="doctorDuesSameTotal" class="fw-bold text-danger">₹0.00</th>
+        </tr>
+    </tfoot>
+</table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="doctorRevisitModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+            <i class="bi bi-bell me-2"></i>Doctor Revisit Alert
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-bordered table-hover">
+            <thead class="table-warning">
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Contact Number</th>
+                    <th>Last Visit Date</th>
+                    <th>Date of Revisit</th>
+                    <th>Doctor Name</th>
+                    <th>Action</th> <!-- Added Action column -->
+                </tr>
+            </thead>
+            <tbody id="doctorRevisitTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
